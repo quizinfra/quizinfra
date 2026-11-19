@@ -3,9 +3,32 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 
-    <style>img:is([sizes="auto" i], [sizes^="auto," i]) {
-        contain-intrinsic-size: 3000px 1500px
-    }</style>
+    <style>
+        img:is([sizes="auto" i], [sizes^="auto," i]) {
+            contain-intrinsic-size: 3000px 1500px;
+        }
+        /* Layout */
+        body {font-family: Arial, Helvetica, sans-serif; margin:0; padding:0; background:#f5f5f5;}
+        .outer-container {display:flex; justify-content:center; padding:20px;}
+        .inner-wrapper {max-width:900px; width:100%; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:20px;}
+        .form-container {margin-bottom:20px;}
+        .form-group {margin-bottom:15px; display:flex; flex-direction:column;}
+        .form-group label {margin-bottom:5px; font-weight:600;}
+        .form-group input, .form-group textarea {padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;}
+        .form-group textarea {resize:vertical; height:80px;}
+        .button-group {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+        .button-group button {background:#007bff; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:14px;}
+        .button-group button:hover {background:#0056b3;}
+        .question {border:1px solid #ddd; padding:10px; border-radius:4px; margin-bottom:10px; background:#fafafa;}
+        .question h4 {margin-top:0;}
+                .question input[type="text"], .question textarea {width:100%; box-sizing:border-box; }
+                .answer-row {display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+                .answer-row label {width:1.5rem; }
+                .answer-row input[type="text"] {flex:1; }
+        .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);}
+        .modal-content {background:#fff; padding:20px; margin:auto; width:80%; height:80%; overflow-y:auto; border-radius:8px;}
+        .modal-content button {margin-top:10px;}
+    </style>
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Multiple Choice Printable Quiz Maker</title>
 
@@ -13,9 +36,8 @@
 
 <body>
 
-
-<div>
-    <div>
+<div class="outer-container">
+    <div class="inner-wrapper">
 
         <div>
             <main>
@@ -28,90 +50,88 @@
                         </header>
 
 
-                        <div>
-                            <div>
-                                <div>
-                                    <label for="quizTitle">Quiz Title</label>
-                                    <input id="quizTitle" placeholder="Enter quiz title" type="text">
-                                </div>
-                                <div>
-                                    <label for="teacherName">Teacher's Name</label>
-                                    <input id="teacherName" placeholder="Enter teacher's name" type="text">
-                                </div>
-                                <div>
-                                    <label for="instructions">Instructions</label>
-                                    <textarea id="instructions" placeholder="Enter instructions"></textarea>
-                                </div>
-                                <div>
-                                    <label for="quizDate">Date</label>
-                                    <input id="quizDate" placeholder="Enter date" type="text">
-                                </div>
-
-                                <div id="questionsContainer"></div>
-
-                                <div>
-                                    <button onclick="addQuestion()">Add New Question</button>
-                                    <button onclick="saveProgress()">Save Progress</button>
-                                    <button onclick="loadProgress()">Load Progress</button>
-                                    <button onclick="previewQuiz()">Preview Quiz</button>
-                                    <button onclick="exportQuizData()">Export Quiz Data</button>
-                                    <button onclick="importQuizData()">Import Quiz Data</button>
-                                    <button onclick="generateWordDocument()">Generate Word Document</button>
-                                    <button onclick="printAnswerSheet()">Print Answer Sheet</button>
-                                    <button onclick="shuffleQuestions()">Shuffle Questions</button>
-                                    <button onclick="shuffleAnswers()">Shuffle Answers</button>
-                                    <button onclick="clearQuiz()">Clear Quiz</button> <!-- Clear Quiz Button -->
-                                </div>
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label for="quizTitle">Quiz Title</label>
+                                <input id="quizTitle" placeholder="Enter quiz title" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="teacherName">Teacher's Name</label>
+                                <input id="teacherName" placeholder="Enter teacher's name" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="instructions">Instructions</label>
+                                <textarea id="instructions" placeholder="Enter instructions"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="quizDate">Date</label>
+                                <input id="quizDate" placeholder="Enter date" type="text">
                             </div>
 
-                            <!-- Modal for importing data -->
-                            <input id="importFileInput" onchange="handleFileImport(event)" style="display:none;"
-                                   type="file">
+                            <div id="questionsContainer"></div>
 
-                            <!-- Modal for previewing quiz -->
-                            <div id="previewModal"
-                                 style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-                                <div style="background:#fff; padding:20px; margin:auto; width:80%; height:80%;overflow-y:auto;">
-                                    <h2>Quiz Preview</h2>
-                                    <div id="previewContent"></div>
-                                    <button onclick="closePreview()">Close</button>
-                                </div>
+                            <div class="button-group">
+                                <button onclick="addQuestion()">Add New Question</button>
+                                <button onclick="saveProgress()">Save Progress</button>
+                                <button onclick="loadProgress()">Load Progress</button>
+                                <button onclick="previewQuiz()">Preview Quiz</button>
+                                <button onclick="exportQuizData()">Export Quiz Data</button>
+                                <button onclick="importQuizData()">Import Quiz Data</button>
+                                <button onclick="generateWordDocument()">Generate Word Document</button>
+                                <button onclick="printAnswerSheet()">Print Answer Sheet</button>
+                                <button onclick="shuffleQuestions()">Shuffle Questions</button>
+                                <button onclick="shuffleAnswers()">Shuffle Answers</button>
+                                <button onclick="clearQuiz()">Clear Quiz</button>
                             </div>
+                        </div>
 
-                            <script>
-                                let questions = [];
+                        <!-- Modal for importing data -->
+                        <input id="importFileInput" onchange="handleFileImport(event)" style="display:none;"
+                               type="file">
 
-                                function addQuestion() {
-                                    const question = {
-                                        text: '',
-                                        answers: ['', '', '', ''],
-                                        correctAnswers: [false, false, false, false],
-                                        explanation: ''
-                                    };
-                                    questions.push(question);
-                                    renderQuestions();
-                                }
+                        <!-- Modal for previewing quiz -->
+                        <div id="previewModal" class="modal">
+                            <div class="modal-content">
+                                <h2>Quiz Preview</h2>
+                                <div id="previewContent"></div>
+                                <button onclick="closePreview()">Close</button>
+                            </div>
+                        </div>
 
-                                function removeQuestion(index) {
-                                    questions.splice(index, 1);
-                                    renderQuestions();
-                                }
+                        <script>
+                            let questions = [];
 
-                                function renderQuestions() {
-                                    const container = document.getElementById('questionsContainer');
-                                    container.innerHTML = '';
+                            function addQuestion() {
+                                const question = {
+                                    text: '',
+                                    answers: ['', '', '', ''],
+                                    correctAnswers: [false, false, false, false],
+                                    explanation: ''
+                                };
+                                questions.push(question);
+                                renderQuestions();
+                            }
 
-                                    questions.forEach((q, index) => {
-                                        const questionDiv = document.createElement('div');
-                                        questionDiv.className = 'question';
-                                        questionDiv.innerHTML = `
+                            function removeQuestion(index) {
+                                questions.splice(index, 1);
+                                renderQuestions();
+                            }
+
+                            function renderQuestions() {
+                                const container = document.getElementById('questionsContainer');
+                                container.innerHTML = '';
+
+                                questions.forEach((q, index) => {
+                                    const questionDiv = document.createElement('div');
+                                    questionDiv.className = 'question';
+                                    questionDiv.innerHTML = `
                 <h4>Question ${index + 1}</h4>
                 <div>
                     <label>Question Text</label>
                     <input type='text' value='${q.text}' oninput='updateQuestionText(${index}, this.value)'>
                 </div>
                 ${q.answers.map((a, i) => `
-                    <div>
+                    <div class="answer-row">
                         <label>${String.fromCharCode(65 + i)}</label>
                         <input type='text' value='${a}' oninput='updateAnswer(${index}, ${i}, this.value)'>
                         <input type='checkbox' ${q.correctAnswers[i] ? 'checked' : ''} onchange='updateCorrectAnswer(${index}, ${i}, this.checked)'>
@@ -122,65 +142,65 @@
                 </div>
                 <button onclick='removeQuestion(${index})'>Remove Question</button>
             `;
-                                        container.appendChild(questionDiv);
-                                    });
-                                }
+                                    container.appendChild(questionDiv);
+                                });
+                            }
 
-                                function updateQuestionText(index, value) {
-                                    questions[index].text = value;
-                                }
+                            function updateQuestionText(index, value) {
+                                questions[index].text = value;
+                            }
 
-                                function updateAnswer(qIndex, aIndex, value) {
-                                    questions[qIndex].answers[aIndex] = value;
-                                }
+                            function updateAnswer(qIndex, aIndex, value) {
+                                questions[qIndex].answers[aIndex] = value;
+                            }
 
-                                function updateCorrectAnswer(qIndex, aIndex, isChecked) {
-                                    questions[qIndex].correctAnswers[aIndex] = isChecked;
-                                }
+                            function updateCorrectAnswer(qIndex, aIndex, isChecked) {
+                                questions[qIndex].correctAnswers[aIndex] = isChecked;
+                            }
 
-                                function updateExplanation(index, value) {
-                                    questions[index].explanation = value;
-                                }
+                            function updateExplanation(index, value) {
+                                questions[index].explanation = value;
+                            }
 
-                                function saveProgress() {
-                                    const quizData = getQuizData();
-                                    localStorage.setItem('quizData', JSON.stringify(quizData));
-                                    alert('Progress saved!');
-                                }
+                            function saveProgress() {
+                                const quizData = getQuizData();
+                                localStorage.setItem('quizData', JSON.stringify(quizData));
+                                alert('Progress saved!');
+                            }
 
-                                function loadProgress() {
-                                    const savedData = localStorage.getItem('quizData');
-                                    if (savedData) {
-                                        const quizData = JSON.parse(savedData);
-                                        setQuizData(quizData);
-                                        renderQuestions();
-                                        alert('Progress loaded!');
-                                    } else {
-                                        alert('No saved progress found.');
-                                    }
+                            function loadProgress() {
+                                const savedData = localStorage.getItem('quizData');
+                                if (savedData) {
+                                    const quizData = JSON.parse(savedData);
+                                    setQuizData(quizData);
+                                    renderQuestions();
+                                    alert('Progress loaded!');
+                                } else {
+                                    alert('No saved progress found.');
                                 }
+                            }
 
-                                function getQuizData() {
-                                    return {
-                                        title: document.getElementById('quizTitle').value,
-                                        teacherName: document.getElementById('teacherName').value,
-                                        instructions: document.getElementById('instructions').value,
-                                        date: document.getElementById('quizDate').value,
-                                        questions
-                                    };
-                                }
+                            function getQuizData() {
+                                return {
+                                    title: document.getElementById('quizTitle').value,
+                                    teacherName: document.getElementById('teacherName').value,
+                                    instructions: document.getElementById('instructions').value,
+                                    date: document.getElementById('quizDate').value,
+                                    questions
+                                };
+                            }
 
-                                function setQuizData(data) {
-                                    document.getElementById('quizTitle').value = data.title || '';
-                                    document.getElementById('teacherName').value = data.teacherName || '';
-                                    document.getElementById('instructions').value = data.instructions || '';
-                                    document.getElementById('quizDate').value = data.date || '';
-                                    questions = data.questions || [];
-                                }
+                            function setQuizData(data) {
+                                document.getElementById('quizTitle').value = data.title || '';
+                                document.getElementById('teacherName').value = data.teacherName || '';
+                                document.getElementById('instructions').value = data.instructions || '';
+                                document.getElementById('quizDate').value = data.date || '';
+                                questions = data.questions || [];
+                            }
 
-                                function previewQuiz() {
-                                    const previewContent = document.getElementById('previewContent');
-                                    previewContent.innerHTML = `
+                            function previewQuiz() {
+                                const previewContent = document.getElementById('previewContent');
+                                previewContent.innerHTML = `
             <h3>${document.getElementById('quizTitle').value}</h3>
             <p><strong>Teacher:</strong> ${document.getElementById('teacherName').value}</p>
             <p><strong>Date:</strong> ${document.getElementById('quizDate').value}</p>
@@ -194,183 +214,182 @@
                 </div>`).join('')}
         `;
 
-                                    document.getElementById('previewModal').style.display = 'block';
-                                }
+                                document.getElementById('previewModal').style.display = 'block';
+                            }
 
-                                function closePreview() {
+                            function closePreview() {
                                     document.getElementById('previewModal').style.display = 'none';
                                 }
 
-                                function exportQuizData() {
-                                    const quizData = getQuizData();
-                                    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(quizData));
+                            function exportQuizData() {
+                                const quizData = getQuizData();
+                                const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(quizData));
 
-                                    const downloadAnchorNode = document.createElement('a');
-                                    downloadAnchorNode.setAttribute('href', dataStr);
-                                    downloadAnchorNode.setAttribute('download', 'quiz_data.json');
+                                const downloadAnchorNode = document.createElement('a');
+                                downloadAnchorNode.setAttribute('href', dataStr);
+                                downloadAnchorNode.setAttribute('download', 'quiz_data.json');
 
-                                    document.body.appendChild(downloadAnchorNode);
+                                document.body.appendChild(downloadAnchorNode);
 
-                                    downloadAnchorNode.click();
+                                downloadAnchorNode.click();
 
-                                    downloadAnchorNode.remove();
+                                downloadAnchorNode.remove();
+                            }
+
+                            function importQuizData() {
+                                document.getElementById('importFileInput').click();
+                            }
+
+                            function handleFileImport(event) {
+                                const file = event.target.files[0];
+
+                                if (file) {
+                                    const reader = new FileReader();
+
+                                    reader.onload = function (e) {
+                                        const content = e.target.result;
+                                        alert('File imported');
+
+                                        try {
+                                            const quizData = JSON.parse(content);
+                                            setQuizData(quizData);
+                                            renderQuestions();
+                                        } catch (error) {
+                                            alert('BOUH. Failed to import quiz data.');
+                                        }
+
+                                        event.target.value = ''; // Reset file input
+                                    };
+
+                                    reader.readAsText(file);
+
+                                } else {
+                                    alert('No file selected.');
                                 }
+                            }
 
-                                function importQuizData() {
-                                    document.getElementById('importFileInput').click();
-                                }
-
-                                function handleFileImport(event) {
-                                    const file = event.target.files[0];
-
-                                    if (file) {
-                                        const reader = new FileReader();
-
-                                        reader.onload = function (e) {
-                                            const content = e.target.result;
-                                            alert('File imported');
-
-                                            try {
-                                                const quizData = JSON.parse(content);
-                                                setQuizData(quizData);
-                                                renderQuestions();
-                                            } catch (error) {
-                                                alert('BOUH. Failed to import quiz data.');
-                                            }
-
-                                            event.target.value = ''; // Reset file input
-                                        };
-
-                                        reader.readAsText(file);
-
-                                    } else {
-                                        alert('No file selected.');
-                                    }
-                                }
-
-                                function generateWordDocument() {
-                                    let docContent = `
+                            function generateWordDocument() {
+                                let docContent = `
           <!DOCTYPE html>
           <html lang="en">
           <head><meta charset="UTF-8"><title>Quiz Document</title></head><body>`;
 
-                                    docContent += `
+                                docContent += `
           <h2>${document.getElementById('quizTitle').value}</h2>
           <p><strong>Teacher:</strong> ${document.getElementById('teacherName').value}</p>
           <p><strong>Date:</strong> ${document.getElementById('quizDate').value}</p>
           <p>${document.getElementById('instructions').value}</p>`;
 
-                                    questions.forEach((q, index) => {
-                                        docContent += `
+                                questions.forEach((q, index) => {
+                                    docContent += `
               <div>
                   <h4>Question ${index + 1}</h4>
                   <p>${q.text}</p>`;
 
-                                        q.answers.forEach((a, i) => {
-                                            docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + i)}. ${a}</p>`;
-                                        });
-
-                                        docContent += `</div>`;
+                                    q.answers.forEach((a, i) => {
+                                        docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + i)}. ${a}</p>`;
                                     });
 
-                                    docContent += `</body></html>`;
+                                    docContent += `</div>`;
+                                });
 
-                                    const blob = new Blob([docContent], {type: 'application/msword'});
-                                    const url = URL.createObjectURL(blob);
-                                    const link = document.createElement('a');
+                                docContent += `</body></html>`;
 
-                                    link.href = url;
-                                    link.download = 'quiz_document.doc';
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                }
+                                const blob = new Blob([docContent], {type: 'application/msword'});
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
 
-                                function printAnswerSheet() {
-                                    let answerSheetContent = `
+                                link.href = url;
+                                link.download = 'quiz_document.doc';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }
+
+                            function printAnswerSheet() {
+                                let answerSheetContent = `
               <!DOCTYPE html>
               <html lang="en">
               <head><meta charset="UTF-8"><title>Answer Sheet</title></head><body>`;
 
-                                    answerSheetContent += `
+                                answerSheetContent += `
               <h2>${document.getElementById('quizTitle').value} - Answer Sheet</h2>`;
 
-                                    questions.forEach((q, index) => {
-                                        answerSheetContent += `
+                                questions.forEach((q, index) => {
+                                    answerSheetContent += `
                   <div>
                       <h4>Question ${index + 1}</h4>
                       <p>${q.text}</p>`;
 
-                                        q.answers.forEach((a, i) => {
-                                            answerSheetContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + i)}. ${a} ${q.correctAnswers[i] ? '(Correct)' : ''}</p>`;
-                                        });
-
-                                        if (q.explanation) answerSheetContent += `<p><strong>Explanation:</strong> ${q.explanation}</p>`;
-
-                                        answerSheetContent += `</div>`;
+                                    q.answers.forEach((a, i) => {
+                                        answerSheetContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + i)}. ${a} ${q.correctAnswers[i] ? '(Correct)' : ''}</p>`;
                                     });
 
-                                    answerSheetContent += `</body></html>`;
+                                    if (q.explanation) answerSheetContent += `<p><strong>Explanation:</strong> ${q.explanation}</p>`;
 
-                                    const blob = new Blob([answerSheetContent], {type: 'application/msword'});
-                                    const url = URL.createObjectURL(blob);
-                                    const link = document.createElement('a');
+                                    answerSheetContent += `</div>`;
+                                });
 
-                                    link.href = url;
-                                    link.download = 'answer_sheet.doc';
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
+                                answerSheetContent += `</body></html>`;
+
+                                const blob = new Blob([answerSheetContent], {type: 'application/msword'});
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+
+                                link.href = url;
+                                link.download = 'answer_sheet.doc';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }
+
+                            function shuffleQuestions() {
+                                for (let i = questions.length - 1; i > 0; i--) {
+                                    const j = Math.floor(Math.random() * (i + 1));
+                                    [questions[i], questions[j]] = [questions[j], questions[i]];
                                 }
+                                renderQuestions();
+                            }
 
-                                function shuffleQuestions() {
-                                    for (let i = questions.length - 1; i > 0; i--) {
+                            function shuffleAnswers() {
+                                questions.forEach(question => {
+                                    const answersWithIndexes = question.answers.map((answer, index) => ({
+                                        answer,
+                                        index
+                                    }));
+                                    for (let i = answersWithIndexes.length - 1; i > 0; i--) {
                                         const j = Math.floor(Math.random() * (i + 1));
-                                        [questions[i], questions[j]] = [questions[j], questions[i]];
+                                        [answersWithIndexes[i], answersWithIndexes[j]] = [answersWithIndexes[j], answersWithIndexes[i]];
                                     }
-                                    renderQuestions();
-                                }
+                                    const shuffledAnswers = answersWithIndexes.map(item => item.answer);
+                                    const newCorrectAnswers = shuffledAnswers.map(answer => question.correctAnswers[answersWithIndexes.find(item => item.answer === answer).index]);
+                                    question.answers = shuffledAnswers;
+                                    question.correctAnswers = newCorrectAnswers;
+                                });
+                                renderQuestions();
+                            }
 
-                                function shuffleAnswers() {
-                                    questions.forEach(question => {
-                                        const answersWithIndexes = question.answers.map((answer, index) => ({
-                                            answer,
-                                            index
-                                        }));
-                                        for (let i = answersWithIndexes.length - 1; i > 0; i--) {
-                                            const j = Math.floor(Math.random() * (i + 1));
-                                            [answersWithIndexes[i], answersWithIndexes[j]] = [answersWithIndexes[j], answersWithIndexes[i]];
-                                        }
-                                        const shuffledAnswers = answersWithIndexes.map(item => item.answer);
-                                        const newCorrectAnswers = shuffledAnswers.map(answer => question.correctAnswers[answersWithIndexes.find(item => item.answer === answer).index]);
-                                        question.answers = shuffledAnswers;
-                                        question.correctAnswers = newCorrectAnswers;
-                                    });
-                                    renderQuestions();
-                                }
+                            // Function to clear the quiz
+                            function clearQuiz() {
+                                questions = [];
+                                document.getElementById('quizTitle').value = '';
+                                document.getElementById('teacherName').value = '';
+                                document.getElementById('instructions').value = '';
+                                document.getElementById('quizDate').value = '';
+                                renderQuestions();
+                                alert('Quiz cleared!');
+                            }
+                        </script>
+                        <noscript>You must enable JavaScript to see this text.</noscript>
 
-                                // Function to clear the quiz
-                                function clearQuiz() {
-                                    questions = [];
-                                    document.getElementById('quizTitle').value = '';
-                                    document.getElementById('teacherName').value = '';
-                                    document.getElementById('instructions').value = '';
-                                    document.getElementById('quizDate').value = '';
-                                    renderQuestions();
-                                    alert('Quiz cleared!');
-                                }
-                            </script>
-                            <noscript>You must enable JavaScript to see this text.</noscript>
-
-
-                        </div>
 
                     </div>
-                </article>
-            </main>
-        </div>
 
+                </div>
+            </article>
+        </main>
     </div>
+
 </div>
 </body>
 </html>
