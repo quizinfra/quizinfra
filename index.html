@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <style>
+        img:is([sizes="auto" i], [sizes^="auto," i]) {
+            contain-intrinsic-size: 3000px 1500px;
+        }
+        /* Layout */
+        body {font-family: Arial, Helvetica, sans-serif; margin:0; padding:0; background:#f5f5f5;}
+        .outer-container {display:flex; justify-content:center; padding:20px;}
+        .inner-wrapper {max-width:900px; width:100%; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:20px;}
+        .form-container {margin-bottom:20px;}
+        .form-group {margin-bottom:15px; display:flex; flex-direction:column;}
+        .form-group label {margin-bottom:5px; font-weight:600;}
+        .form-group input, .form-group textarea {padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;}
+        .form-group textarea {resize:vertical; height:80px;}
+        .button-group {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+        .button-group button {background:#007bff; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:14px;}
+        .button-group button:hover {background:#0056b3;}
+        .question {border:1px solid #ddd; padding:10px; border-radius:4px; margin-bottom:10px; background:#fafafa;}
+        .question h4 {margin-top:0;}
+        .question input[type="text"], .question textarea {width:100%; box-sizing:border-box; }
+        .answer-row {display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+        .answer-row label {width:1.5rem; }
+        .answer-row input[type="text"] {flex:1; }
+        .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);}
+        .modal-content {background:#fff; padding:20px; margin:auto; width:80%; height:80%; overflow-y:auto; border-radius:8px;}
+        .modal-content button {margin-top:10px;}
+    </style>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Multiple Choice Printable Quiz Maker</title>
+</head>
+<body>
+<div class="outer-container">
+    <div class="inner-wrapper">
+        <div>
+            <main>
+                <article>
+                    <div>
+                        <header>
+                            <h1>Multiple Choice Printable Quiz Maker</h1>
+                        </header>
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label for="quizTitle">Quiz Title</label>
+                                <input id="quizTitle" placeholder="Enter quiz title" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="teacherName">Teacher's Name</label>
+                                <input id="teacherName" placeholder="Enter teacher's name" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="instructions">Instructions</label>
+                                <textarea id="instructions" placeholder="Enter instructions"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="quizDate">Date</label>
+                                <input id="quizDate" placeholder="Enter date" type="text">
+                            </div>
+                            <div id="questionsContainer"></div>
+                            <div class="button-group">
+                                <button onclick="addQuestion()">Add New Question</button>
+                                <button onclick="saveProgress()">Save Progress</button>
+                                <button onclick="loadProgress()">Load Progress</button>
+                                <button onclick="previewQuiz()">Preview Quiz</button>
+                                <button onclick="exportQuizData()">Export Quiz Data</button>
+                                <button id="importBtn">Import Quiz Data</button>
+                                <button onclick="generateWordDocument()">Generate Word Document</button>
+                                <button onclick="printAnswerSheet()">Print Answer Sheet</button>
+                                <button onclick="shuffleQuestions()">Shuffle Questions</button>
+                                <button onclick="shuffleAnswers()">Shuffle Answers</button>
+                                <button onclick="clearQuiz()">Clear Quiz</button>
+                            </div>
+                        </div>
+                        <!-- Modal for importing data -->
+                        <input id="importFileInput" onchange="handleFileImport(event)" style="display:none;" type="file">
+                        <!-- Modal for previewing quiz -->
+                        <div id="previewModal" class="modal">
+                            <div class="modal-content">
+                                <h2>Quiz Preview</h2>
+                                <div id="previewContent"></div>
+                                <button onclick="closePreview()">Close</button>
+                            </div>
+                        </div>
+                        <script type="module" src="./src/ui.js"></script>
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+</div>
+</body>
+</html>
