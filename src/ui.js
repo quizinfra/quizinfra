@@ -47,33 +47,44 @@ export function removeQuestion(index) {
   renderQuestions();
 }
 
+/** Escape characters that have special meaning in HTML attributes or text nodes. */
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderQuestions() {
   const container = document.getElementById("questionsContainer");
   container.innerHTML = "";
   questions.forEach((q, index) => {
     const questionDiv = document.createElement("div");
     questionDiv.className = "question";
+    // Use double‑quoted attributes and escape any dangerous characters.
     questionDiv.innerHTML = `
       <h4>Question ${index + 1}</h4>
       <div>
         <label>Question Text</label>
-        <input type='text' value='${q.text}' oninput='updateQuestionText(${index}, this.value)'>
+        <input type="text" value="${escapeHTML(q.text)}" oninput="updateQuestionText(${index}, this.value)">
       </div>
       ${q.answers
         .map(
           (a, i) => `
         <div class="answer-row">
           <label>${String.fromCharCode(65 + i)}</label>
-          <input type='text' value='${a}' oninput='updateAnswer(${index}, ${i}, this.value)'>
-          <input type='checkbox' ${q.correctAnswers[i] ? "checked" : ""} onchange='updateCorrectAnswer(${index}, ${i}, this.checked)'>
+          <input type="text" value="${escapeHTML(a)}" oninput="updateAnswer(${index}, ${i}, this.value)">
+          <input type="checkbox" ${q.correctAnswers[i] ? "checked" : ""} onchange="updateCorrectAnswer(${index}, ${i}, this.checked)">
         </div>`
         )
         .join("")}
       <div>
         <label>Explanation (optional)</label>
-        <textarea oninput='updateExplanation(${index}, this.value)'>${q.explanation}</textarea>
+        <textarea oninput="updateExplanation(${index}, this.value)">${escapeHTML(q.explanation)}</textarea>
       </div>
-      <button onclick='removeQuestion(${index})'>Remove Question</button>
+      <button onclick="removeQuestion(${index})">Remove Question</button>
     `;
     container.appendChild(questionDiv);
   });
