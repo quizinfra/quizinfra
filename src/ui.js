@@ -180,7 +180,7 @@ export function handleFileImport(event) {
       setQuizData(quiz);
       renderQuestions();
       alert("File imported");
-    } catch (_) {
+    } catch {
       alert("BOUH. Failed to import quiz data.");
     }
     event.target.value = ""; // reset
