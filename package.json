@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "node -e \"require('fs').copyFileSync('.nojekyll', 'docs/.nojekyll')\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . --ext .js,.ts"

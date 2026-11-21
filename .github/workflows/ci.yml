@@ -28,5 +28,5 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Build site (outputs to docs/)
+      - name: Build site (outputs to repository root)
         run: npm run build
