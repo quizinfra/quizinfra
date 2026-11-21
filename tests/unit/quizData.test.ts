@@ -4,8 +4,8 @@ import { buildQuizPayload, serializeQuiz } from "../../src/quizData.js";
 describe("Quiz payload serialization", () => {
   test("preserves single quotes in every field", () => {
     // Minimal DOM mocks – only .value is accessed
-    const mockInput = (val) => ({ value: val } as unknown as HTMLInputElement);
-    const mockTextarea = (val) => ({ value: val } as unknown as HTMLTextAreaElement);
+    const mockInput = (val: string) => ({ value: val } as unknown as HTMLInputElement);
+    const mockTextarea = (val: string) => ({ value: val } as unknown as HTMLTextAreaElement);
 
     const title = mockInput("Bob's Awesome Quiz");
     const teacher = mockInput("Mrs. O'Connor");

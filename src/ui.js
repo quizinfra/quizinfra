@@ -1,5 +1,13 @@
 // src/ui.js
 // UI glue that uses the pure helpers from quizData.js.
+
+/**
+ * Simple wrapper around `alert` so tests can spy on a stable function.
+ * It does not change runtime behaviour.
+ */
+export function notify(msg) {
+  alert(msg);
+}
 // Functions are exported for testing and also attached to window
 // so the inline onclick attributes in index.html keep working.
 
@@ -109,7 +117,7 @@ export function updateExplanation(index, value) {
 export function saveProgress() {
   const quizData = getQuizData();
   localStorage.setItem("quizData", serializeQuiz(quizData));
-  alert("Progress saved!");
+  notify("Progress saved!");
 }
 
 export function loadProgress() {
@@ -118,9 +126,9 @@ export function loadProgress() {
     const data = deserializeQuiz(saved);
     setQuizData(data);
     renderQuestions();
-    alert("Progress loaded!");
+    notify("Progress loaded!");
   } else {
-    alert("No saved progress found.");
+    notify("No saved progress found.");
   }
 }
 
@@ -280,7 +288,7 @@ export function clearQuiz() {
   document.getElementById("instructions").value = "";
   document.getElementById("quizDate").value = "";
   renderQuestions();
-  alert("Quiz cleared!");
+  notify("Quiz cleared!");
 }
 
 // Attach exported functions to the global window object so that inline onclick handlers can find them.
