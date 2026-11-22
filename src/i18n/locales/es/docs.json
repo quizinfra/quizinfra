@@ -1,0 +1,16 @@
+{
+  "document": {
+    "title": "Documento de examen"
+  },
+  "answer_sheet": {
+    "page_title": "Hoja de respuestas",
+    "heading": "{{title}} - Hoja de respuestas"
+  },
+  "labels": {
+    "teacher": "Docente:",
+    "date": "Fecha:",
+    "question": "Pregunta {{n}}",
+    "correct": "(Correcto)",
+    "explanation": "Explicación:"
+  }
+}

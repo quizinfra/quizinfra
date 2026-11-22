@@ -1,0 +1,47 @@
+{
+  "app": {
+    "title": "Créateur de quiz imprimibles à choix multiples"
+  },
+  "form": {
+    "quiz_title": "Titre du quiz",
+    "quiz_title_placeholder": "Saisissez le titre du quiz",
+    "teacher_name": "Nom de l'enseignant",
+    "teacher_name_placeholder": "Saisissez le nom de l'enseignant",
+    "instructions": "Consignes",
+    "instructions_placeholder": "Saisissez les consignes",
+    "date": "Date",
+    "date_placeholder": "Saisissez la date"
+  },
+  "actions": {
+    "add_question": "Ajouter une question",
+    "save_progress": "Enregistrer la progression",
+    "load_progress": "Charger la progression",
+    "preview_quiz": "Aperçu du quiz",
+    "export_quiz_data": "Exporter les données du quiz",
+    "import_quiz_data": "Importer les données du quiz",
+    "generate_word_document": "Générer un document Word",
+    "print_answer_sheet": "Imprimer la grille de réponses",
+    "shuffle_questions": "Mélanger les questions",
+    "shuffle_answers": "Mélanger les réponses",
+    "clear_quiz": "Effacer le quiz",
+    "close": "Fermer"
+  },
+  "preview": {
+    "heading": "Aperçu du quiz"
+  },
+  "question": {
+    "heading": "Question {{n}}",
+    "text_label": "Texte de la question",
+    "explanation_label": "Explication (facultatif)",
+    "remove": "Supprimer la question"
+  },
+  "toast": {
+    "saved": "Progression enregistrée!",
+    "loaded": "Progression chargée!",
+    "no_saved": "Aucune progression enregistrée trouvée.",
+    "cleared": "Quiz effacé!",
+    "no_file_selected": "Aucun fichier sélectionné.",
+    "imported": "Fichier importé",
+    "import_failed": "Échec de l'importation des données du quiz."
+  }
+}

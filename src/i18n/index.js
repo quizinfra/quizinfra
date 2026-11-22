@@ -7,10 +7,16 @@
 import { detectLanguage } from "./detect.js";
 import enUi from "./locales/en/ui.json";
 import enDocs from "./locales/en/docs.json";
+import esUi from "./locales/es/ui.json";
+import esDocs from "./locales/es/docs.json";
+import frUi from "./locales/fr/ui.json";
+import frDocs from "./locales/fr/docs.json";
 
 /** Registry: locale code -> namespace -> nested message tree. */
 const locales = {
   en: { ui: enUi, docs: enDocs },
+  es: { ui: esUi, docs: esDocs },
+  fr: { ui: frUi, docs: frDocs },
 };
 
 export const SUPPORTED_LOCALES = Object.keys(locales);

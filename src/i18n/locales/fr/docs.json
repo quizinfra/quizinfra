@@ -1,0 +1,16 @@
+{
+  "document": {
+    "title": "Document du quiz"
+  },
+  "answer_sheet": {
+    "page_title": "Grille de réponses",
+    "heading": "{{title}} - Grille de réponses"
+  },
+  "labels": {
+    "teacher": "Enseignant:",
+    "date": "Date:",
+    "question": "Question {{n}}",
+    "correct": "(Correct)",
+    "explanation": "Explication:"
+  }
+}

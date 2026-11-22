@@ -1,0 +1,47 @@
+{
+  "app": {
+    "title": "Creador de exámenes imprimibles de opción múltiple"
+  },
+  "form": {
+    "quiz_title": "Título del examen",
+    "quiz_title_placeholder": "Introduce el título del examen",
+    "teacher_name": "Nombre del docente",
+    "teacher_name_placeholder": "Introduce el nombre del docente",
+    "instructions": "Instrucciones",
+    "instructions_placeholder": "Introduce las instrucciones",
+    "date": "Fecha",
+    "date_placeholder": "Introduce la fecha"
+  },
+  "actions": {
+    "add_question": "Añadir nueva pregunta",
+    "save_progress": "Guardar progreso",
+    "load_progress": "Cargar progreso",
+    "preview_quiz": "Vista previa del examen",
+    "export_quiz_data": "Exportar datos del examen",
+    "import_quiz_data": "Importar datos del examen",
+    "generate_word_document": "Generar documento de Word",
+    "print_answer_sheet": "Imprimir hoja de respuestas",
+    "shuffle_questions": "Mezclar preguntas",
+    "shuffle_answers": "Mezclar respuestas",
+    "clear_quiz": "Vaciar examen",
+    "close": "Cerrar"
+  },
+  "preview": {
+    "heading": "Vista previa del examen"
+  },
+  "question": {
+    "heading": "Pregunta {{n}}",
+    "text_label": "Texto de la pregunta",
+    "explanation_label": "Explicación (opcional)",
+    "remove": "Quitar pregunta"
+  },
+  "toast": {
+    "saved": "¡Progreso guardado!",
+    "loaded": "¡Progreso cargado!",
+    "no_saved": "No se encontró ningún progreso guardado.",
+    "cleared": "¡Examen vaciado!",
+    "no_file_selected": "Ningún archivo seleccionado.",
+    "imported": "Archivo importado",
+    "import_failed": "No se pudieron importar los datos del examen."
+  }
+}
