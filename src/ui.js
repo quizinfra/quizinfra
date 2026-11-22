@@ -16,6 +16,7 @@ import {
   serializeQuiz,
   deserializeQuiz,
 } from "./quizData.js";
+import { t, getLocale, initI18n } from "./i18n/index.js";
 
 let questions = [];
 
@@ -73,9 +74,9 @@ export function renderQuestions() {
     questionDiv.className = "question";
     // Use double‑quoted attributes and escape any dangerous characters.
     questionDiv.innerHTML = `
-      <h4>Question ${index + 1}</h4>
+      <h4>${t("question.heading", { n: index + 1 })}</h4>
       <div>
-        <label>Question Text</label>
+        <label>${t("question.text_label")}</label>
         <input type="text" value="${escapeHTML(q.text)}" oninput="updateQuestionText(${index}, this.value)">
       </div>
       ${q.answers
@@ -89,10 +90,10 @@ export function renderQuestions() {
         )
         .join("")}
       <div>
-        <label>Explanation (optional)</label>
+        <label>${t("question.explanation_label")}</label>
         <textarea oninput="updateExplanation(${index}, this.value)">${escapeHTML(q.explanation)}</textarea>
       </div>
-      <button onclick="removeQuestion(${index})">Remove Question</button>
+      <button onclick="removeQuestion(${index})">${t("question.remove")}</button>
     `;
     container.appendChild(questionDiv);
   });
@@ -117,7 +118,7 @@ export function updateExplanation(index, value) {
 export function saveProgress() {
   const quizData = getQuizData();
   localStorage.setItem("quizData", serializeQuiz(quizData));
-  notify("Progress saved!");
+  notify(t("toast.saved"));
 }
 
 export function loadProgress() {
@@ -126,28 +127,28 @@ export function loadProgress() {
     const data = deserializeQuiz(saved);
     setQuizData(data);
     renderQuestions();
-    notify("Progress loaded!");
+    notify(t("toast.loaded"));
   } else {
-    notify("No saved progress found.");
+    notify(t("toast.no_saved"));
   }
 }
 
 export function previewQuiz() {
   const previewContent = document.getElementById("previewContent");
   previewContent.innerHTML = `
-    <h3>${document.getElementById("quizTitle").value}</h3>
-    <p><strong>Teacher:</strong> ${document.getElementById("teacherName").value}</p>
-    <p><strong>Date:</strong> ${document.getElementById("quizDate").value}</p>
-    <p>${document.getElementById("instructions").value}</p>
+    <h3>${escapeHTML(document.getElementById("quizTitle").value)}</h3>
+    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p>${escapeHTML(document.getElementById("instructions").value)}</p>
     ${questions
       .map(
         (q, i) => `
       <div>
-        <h4>Question ${i + 1}</h4>
-        <p>${q.text}</p>
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>
         ${q.answers
           .map(
-            (a, j) => `<p style='margin-left:20px;'>${String.fromCharCode(65 + j)}. ${a}</p>`
+            (a, j) => `<p style='margin-left:20px;'>${String.fromCharCode(65 + j)}. ${escapeHTML(a)}</p>`
           )
           .join("")}
       </div>`
@@ -178,7 +179,7 @@ export function importQuizData() {
 export function handleFileImport(event) {
   const file = event.target.files[0];
   if (!file) {
-    alert("No file selected.");
+    notify(t("toast.no_file_selected"));
     return;
   }
   const reader = new FileReader();
@@ -187,9 +188,9 @@ export function handleFileImport(event) {
       const quiz = deserializeQuiz(e.target.result);
       setQuizData(quiz);
       renderQuestions();
-      alert("File imported");
+      notify(t("toast.imported"));
     } catch {
-      alert("BOUH. Failed to import quiz data.");
+      notify(t("toast.import_failed"));
     }
     event.target.value = ""; // reset
   };
@@ -199,20 +200,20 @@ export function handleFileImport(event) {
 export function generateWordDocument() {
   let docContent = `
     <!DOCTYPE html>
-    <html lang="en">
-    <head><meta charset="UTF-8"><title>Quiz Document</title></head><body>`;
+    <html lang="${escapeHTML(getLocale())}">
+    <head><meta charset="UTF-8"><title>${t("document.title")}</title></head><body>`;
   docContent += `
-    <h2>${document.getElementById("quizTitle").value}</h2>
-    <p><strong>Teacher:</strong> ${document.getElementById("teacherName").value}</p>
-    <p><strong>Date:</strong> ${document.getElementById("quizDate").value}</p>
-    <p>${document.getElementById("instructions").value}</p>`;
+    <h2>${escapeHTML(document.getElementById("quizTitle").value)}</h2>
+    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p>${escapeHTML(document.getElementById("instructions").value)}</p>`;
   questions.forEach((q, i) => {
     docContent += `
       <div>
-        <h4>Question ${i + 1}</h4>
-        <p>${q.text}</p>`;
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>`;
     q.answers.forEach((a, idx) => {
-      docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${a}</p>`;
+      docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)}</p>`;
     });
     docContent += `</div>`;
   });
@@ -230,19 +231,19 @@ export function generateWordDocument() {
 export function printAnswerSheet() {
   let content = `
     <!DOCTYPE html>
-    <html lang="en">
-    <head><meta charset="UTF-8"><title>Answer Sheet</title></head><body>`;
+    <html lang="${escapeHTML(getLocale())}">
+    <head><meta charset="UTF-8"><title>${t("answer_sheet.page_title")}</title></head><body>`;
   content += `
-    <h2>${document.getElementById("quizTitle").value} - Answer Sheet</h2>`;
+    <h2>${t("answer_sheet.heading", { title: document.getElementById("quizTitle").value })}</h2>`;
   questions.forEach((q, i) => {
     content += `
       <div>
-        <h4>Question ${i + 1}</h4>
-        <p>${q.text}</p>`;
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>`;
     q.answers.forEach((a, idx) => {
-      content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${a} ${q.correctAnswers[idx] ? "(Correct)" : ""}</p>`;
+      content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)} ${q.correctAnswers[idx] ? t("labels.correct") : ""}</p>`;
     });
-    if (q.explanation) content += `<p><strong>Explanation:</strong> ${q.explanation}</p>`;
+    if (q.explanation) content += `<p><strong>${t("labels.explanation")}</strong> ${escapeHTML(q.explanation)}</p>`;
     content += `</div>`;
   });
   content += `</body></html>`;
@@ -288,7 +289,7 @@ export function clearQuiz() {
   document.getElementById("instructions").value = "";
   document.getElementById("quizDate").value = "";
   renderQuestions();
-  notify("Quiz cleared!");
+  notify(t("toast.cleared"));
 }
 
 // Attach exported functions to the global window object so that inline onclick handlers can find them.
@@ -321,4 +322,7 @@ if (typeof document !== 'undefined') {
   if (importBtn) {
     importBtn.addEventListener('click', importQuizData);
   }
+
+  // Detect the active locale and translate all static markup.
+  initI18n();
 }

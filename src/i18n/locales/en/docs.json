@@ -1,0 +1,16 @@
+{
+  "document": {
+    "title": "Quiz Document"
+  },
+  "answer_sheet": {
+    "page_title": "Answer Sheet",
+    "heading": "{{title}} - Answer Sheet"
+  },
+  "labels": {
+    "teacher": "Teacher:",
+    "date": "Date:",
+    "question": "Question {{n}}",
+    "correct": "(Correct)",
+    "explanation": "Explanation:"
+  }
+}

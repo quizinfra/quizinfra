@@ -1,0 +1,47 @@
+{
+  "app": {
+    "title": "Multiple Choice Printable Quiz Maker"
+  },
+  "form": {
+    "quiz_title": "Quiz Title",
+    "quiz_title_placeholder": "Enter quiz title",
+    "teacher_name": "Teacher's Name",
+    "teacher_name_placeholder": "Enter teacher's name",
+    "instructions": "Instructions",
+    "instructions_placeholder": "Enter instructions",
+    "date": "Date",
+    "date_placeholder": "Enter date"
+  },
+  "actions": {
+    "add_question": "Add New Question",
+    "save_progress": "Save Progress",
+    "load_progress": "Load Progress",
+    "preview_quiz": "Preview Quiz",
+    "export_quiz_data": "Export Quiz Data",
+    "import_quiz_data": "Import Quiz Data",
+    "generate_word_document": "Generate Word Document",
+    "print_answer_sheet": "Print Answer Sheet",
+    "shuffle_questions": "Shuffle Questions",
+    "shuffle_answers": "Shuffle Answers",
+    "clear_quiz": "Clear Quiz",
+    "close": "Close"
+  },
+  "preview": {
+    "heading": "Quiz Preview"
+  },
+  "question": {
+    "heading": "Question {{n}}",
+    "text_label": "Question Text",
+    "explanation_label": "Explanation (optional)",
+    "remove": "Remove Question"
+  },
+  "toast": {
+    "saved": "Progress saved!",
+    "loaded": "Progress loaded!",
+    "no_saved": "No saved progress found.",
+    "cleared": "Quiz cleared!",
+    "no_file_selected": "No file selected.",
+    "imported": "File imported",
+    "import_failed": "Failed to import quiz data."
+  }
+}
