@@ -68,6 +68,31 @@ describe('single-file artifact (docs/index.html)', () => {
     expect(html).toContain('Créateur de quiz');
   });
 
+  test('ships comment-stripped code with module banners preserved', () => {
+    // The bundle is unminified for reviewability but hand-written
+    // comments are stripped at build time (see stripArtifactComments
+    // in vite.config.js); only Rollup's `// src/…` module map banners
+    // and the artifact's own docs remain as comments.
+    const doc = parse();
+    const script = Array.from(doc.querySelectorAll('script')).find(
+      (s) => !s.getAttribute('src')
+    )!;
+    const comments = Array.from(
+      script.textContent!.matchAll(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g)
+    ).map((m) => m[0]);
+    expect(comments.length).toBeGreaterThan(0);
+    for (const comment of comments) {
+      expect(comment, `unexpected comment survived the build: ${comment.slice(0, 40)}`).toMatch(
+        /^\/\/ src\/[\w/]+\.js$/
+      );
+    }
+    // Spot-check that representative source comments did NOT survive
+    // (JSDoc, a CSS comment, and an HTML comment).
+    expect(html).not.toContain('@typedef');
+    expect(html).not.toContain('/* Layout */');
+    expect(html).not.toContain('Modal for importing');
+  });
+
   test('executes standalone: translates on load, honors ?lang=, switcher and inline handlers work', async () => {
     const { JSDOM } = await import('jsdom');
     const dom = new JSDOM(html as string, {

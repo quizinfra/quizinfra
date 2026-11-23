@@ -2,10 +2,35 @@
 <html lang="en-US">
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <style>img:is([sizes=auto i],[sizes^=auto\, i]){contain-intrinsic-size:3000px 1500px}body{background:#f5f5f5;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}.outer-container{justify-content:center;padding:20px;display:flex}.inner-wrapper{background:#fff;border-radius:8px;width:100%;max-width:900px;padding:20px;box-shadow:0 2px 8px #0000001a}.form-container{margin-bottom:20px}.form-group{flex-direction:column;margin-bottom:15px;display:flex}.form-group label{margin-bottom:5px;font-weight:600}.form-group input,.form-group textarea{border:1px solid #ccc;border-radius:4px;padding:8px;font-size:14px}.form-group textarea{resize:vertical;height:80px}.button-group{flex-wrap:wrap;gap:8px;margin-top:10px;display:flex}.button-group button{color:#fff;cursor:pointer;background:#007bff;border:none;border-radius:4px;padding:8px 12px;font-size:14px}.button-group button:hover{background:#0056b3}.question{background:#fafafa;border:1px solid #ddd;border-radius:4px;margin-bottom:10px;padding:10px}.question h4{margin-top:0}.question input[type=text],.question textarea{box-sizing:border-box;width:100%}.answer-row{align-items:center;gap:8px;margin-bottom:5px;display:flex}.answer-row label{width:1.5rem}.answer-row input[type=text]{flex:1}.modal{background-color:#00000080;width:100%;height:100%;display:none;position:fixed;top:0;left:0}.modal-content{background:#fff;border-radius:8px;width:80%;height:80%;margin:auto;padding:20px;overflow-y:auto}.modal-content button{margin-top:10px}.lang-switcher{justify-content:flex-end;margin-bottom:8px;display:flex}.lang-switcher select{background:#fff;border:1px solid #ccc;border-radius:4px;padding:4px 6px;font-size:14px}</style>
+    <style>
+        img:is([sizes="auto" i], [sizes^="auto," i]) {
+            contain-intrinsic-size: 3000px 1500px;
+        }
+        body {font-family: Arial, Helvetica, sans-serif; margin:0; padding:0; background:#f5f5f5;}
+        .outer-container {display:flex; justify-content:center; padding:20px;}
+        .inner-wrapper {max-width:900px; width:100%; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:20px;}
+        .form-container {margin-bottom:20px;}
+        .form-group {margin-bottom:15px; display:flex; flex-direction:column;}
+        .form-group label {margin-bottom:5px; font-weight:600;}
+        .form-group input, .form-group textarea {padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;}
+        .form-group textarea {resize:vertical; height:80px;}
+        .button-group {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+        .button-group button {background:#007bff; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:14px;}
+        .button-group button:hover {background:#0056b3;}
+        .question {border:1px solid #ddd; padding:10px; border-radius:4px; margin-bottom:10px; background:#fafafa;}
+        .question h4 {margin-top:0;}
+        .question input[type="text"], .question textarea {width:100%; box-sizing:border-box; }
+        .answer-row {display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+        .answer-row label {width:1.5rem; }
+        .answer-row input[type="text"] {flex:1; }
+        .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);}
+        .modal-content {background:#fff; padding:20px; margin:auto; width:80%; height:80%; overflow-y:auto; border-radius:8px;}
+        .modal-content button {margin-top:10px;}
+        .lang-switcher {display:flex; justify-content:flex-end; margin-bottom:8px;}
+        .lang-switcher select {font-size:14px; padding:4px 6px; border:1px solid #ccc; border-radius:4px; background:#fff;}
+    </style>
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Multiple Choice Printable Quiz Maker</title>
-  
 </head>
 <body>
 <noscript>
@@ -53,9 +78,7 @@
                                 <button data-i18n="actions.clear_quiz" onclick="clearQuiz()">Clear Quiz</button>
                             </div>
                         </div>
-                        <!-- Modal for importing data -->
                         <input id="importFileInput" onchange="handleFileImport(event)" style="display:none;" type="file">
-                        <!-- Modal for previewing quiz -->
                         <div id="previewModal" class="modal">
                             <div class="modal-content">
                                 <h2 data-i18n="preview.heading">Quiz Preview</h2>
@@ -69,51 +92,551 @@
         </div>
     </div>
 </div>
-<script>(function(){function e(e,t,n,r,i){return{title:e.value,teacherName:t.value,instructions:n.value,date:r.value,questions:i}}function t(e){return JSON.stringify(e)}function n(e){return JSON.parse(e)}function r(e){return typeof e==`string`?e.trim().toLowerCase():``}function i(e,t){let n=r(e);return n?t.find(e=>e.toLowerCase()===n)??t.find(e=>e.toLowerCase()===n.split(`-`)[0])??null:null}function a({urlLang:e,stored:t,navigatorLanguages:n=[],supported:r,fallback:a}){return i(e,r)??i(t,r)??n.map(e=>i(e,r)).find(Boolean)??i(a,r)??r[0]}var o={en:{ui:{app:{title:`Multiple Choice Printable Quiz Maker`},lang:{label:`Language`},form:{quiz_title:`Quiz Title`,quiz_title_placeholder:`Enter quiz title`,teacher_name:`Teacher's Name`,teacher_name_placeholder:`Enter teacher's name`,instructions:`Instructions`,instructions_placeholder:`Enter instructions`,date:`Date`,date_placeholder:`Enter date`},actions:{add_question:`Add New Question`,save_progress:`Save Progress`,load_progress:`Load Progress`,preview_quiz:`Preview Quiz`,export_quiz_data:`Export Quiz Data`,import_quiz_data:`Import Quiz Data`,generate_word_document:`Generate Word Document`,print_answer_sheet:`Print Answer Sheet`,shuffle_questions:`Shuffle Questions`,shuffle_answers:`Shuffle Answers`,clear_quiz:`Clear Quiz`,close:`Close`},preview:{heading:`Quiz Preview`},question:{heading:`Question {{n}}`,text_label:`Question Text`,explanation_label:`Explanation (optional)`,remove:`Remove Question`},toast:{saved:`Progress saved!`,loaded:`Progress loaded!`,no_saved:`No saved progress found.`,cleared:`Quiz cleared!`,no_file_selected:`No file selected.`,imported:`File imported`,import_failed:`Failed to import quiz data.`}},docs:{document:{title:`Quiz Document`},answer_sheet:{page_title:`Answer Sheet`,heading:`{{title}} - Answer Sheet`},labels:{teacher:`Teacher:`,date:`Date:`,question:`Question {{n}}`,correct:`(Correct)`,explanation:`Explanation:`}}},es:{ui:{app:{title:`Creador de exámenes imprimibles de opción múltiple`},lang:{label:`Idioma`},form:{quiz_title:`Título del examen`,quiz_title_placeholder:`Introduce el título del examen`,teacher_name:`Nombre del docente`,teacher_name_placeholder:`Introduce el nombre del docente`,instructions:`Instrucciones`,instructions_placeholder:`Introduce las instrucciones`,date:`Fecha`,date_placeholder:`Introduce la fecha`},actions:{add_question:`Añadir nueva pregunta`,save_progress:`Guardar progreso`,load_progress:`Cargar progreso`,preview_quiz:`Vista previa del examen`,export_quiz_data:`Exportar datos del examen`,import_quiz_data:`Importar datos del examen`,generate_word_document:`Generar documento de Word`,print_answer_sheet:`Imprimir hoja de respuestas`,shuffle_questions:`Mezclar preguntas`,shuffle_answers:`Mezclar respuestas`,clear_quiz:`Vaciar examen`,close:`Cerrar`},preview:{heading:`Vista previa del examen`},question:{heading:`Pregunta {{n}}`,text_label:`Texto de la pregunta`,explanation_label:`Explicación (opcional)`,remove:`Quitar pregunta`},toast:{saved:`¡Progreso guardado!`,loaded:`¡Progreso cargado!`,no_saved:`No se encontró ningún progreso guardado.`,cleared:`¡Examen vaciado!`,no_file_selected:`Ningún archivo seleccionado.`,imported:`Archivo importado`,import_failed:`No se pudieron importar los datos del examen.`}},docs:{document:{title:`Documento de examen`},answer_sheet:{page_title:`Hoja de respuestas`,heading:`{{title}} - Hoja de respuestas`},labels:{teacher:`Docente:`,date:`Fecha:`,question:`Pregunta {{n}}`,correct:`(Correcto)`,explanation:`Explicación:`}}},fr:{ui:{app:{title:`Créateur de quiz imprimibles à choix multiples`},lang:{label:`Langue`},form:{quiz_title:`Titre du quiz`,quiz_title_placeholder:`Saisissez le titre du quiz`,teacher_name:`Nom de l'enseignant`,teacher_name_placeholder:`Saisissez le nom de l'enseignant`,instructions:`Consignes`,instructions_placeholder:`Saisissez les consignes`,date:`Date`,date_placeholder:`Saisissez la date`},actions:{add_question:`Ajouter une question`,save_progress:`Enregistrer la progression`,load_progress:`Charger la progression`,preview_quiz:`Aperçu du quiz`,export_quiz_data:`Exporter les données du quiz`,import_quiz_data:`Importer les données du quiz`,generate_word_document:`Générer un document Word`,print_answer_sheet:`Imprimer la grille de réponses`,shuffle_questions:`Mélanger les questions`,shuffle_answers:`Mélanger les réponses`,clear_quiz:`Effacer le quiz`,close:`Fermer`},preview:{heading:`Aperçu du quiz`},question:{heading:`Question {{n}}`,text_label:`Texte de la question`,explanation_label:`Explication (facultatif)`,remove:`Supprimer la question`},toast:{saved:`Progression enregistrée!`,loaded:`Progression chargée!`,no_saved:`Aucune progression enregistrée trouvée.`,cleared:`Quiz effacé!`,no_file_selected:`Aucun fichier sélectionné.`,imported:`Fichier importé`,import_failed:`Échec de l'importation des données du quiz.`}},docs:{document:{title:`Document du quiz`},answer_sheet:{page_title:`Grille de réponses`,heading:`{{title}} - Grille de réponses`},labels:{teacher:`Enseignant:`,date:`Date:`,question:`Question {{n}}`,correct:`(Correct)`,explanation:`Explication:`}}}},s=Object.keys(o),c=`lang`,l={en:`🌹 en`,es:`🧉 es`,fr:`⚜️ fr`},u=`en`;function d(e,t){let n=e;for(let e of String(t).split(`.`)){if(typeof n!=`object`||!n)return;n=n[e]}return typeof n==`string`?n:void 0}function f(e){return String(e).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`).replace(/"/g,`&quot;`).replace(/'/g,`&#39;`)}function p(e,t){let n=o[u],r=o.en,i=d(n?.ui,e)??d(n?.docs,e)??d(r.ui,e)??d(r.docs,e)??e;return t?i.replace(/\{\{(\w+)\}\}/g,(e,n)=>Object.prototype.hasOwnProperty.call(t,n)?f(t[n]):e):i}function m(e){return o[e]?(u=e,!0):!1}function h(e=document.getElementById(`langSwitcher`)){if(!e)return null;let t=document.createElement(`select`);t.id=`langSwitcherSelect`,t.setAttribute(`aria-label`,p(`lang.label`));for(let e of s){let n=document.createElement(`option`);n.value=e,n.textContent=l[e]??e,t.appendChild(n)}return t.value=u,t.addEventListener(`change`,()=>{m(t.value)&&(localStorage.setItem(c,u),_(),t.setAttribute(`aria-label`,p(`lang.label`)))}),e.appendChild(t),t}function g(){return u}function _(e=document){for(let t of e.querySelectorAll(`[data-i18n]`))t.textContent=p(t.getAttribute(`data-i18n`));for(let t of e.querySelectorAll(`[data-i18n-placeholder]`))t.setAttribute(`placeholder`,p(t.getAttribute(`data-i18n-placeholder`)));document.title=p(`app.title`),document.documentElement.lang=u}function v(e={}){let t=a({urlLang:e.urlLang??new URLSearchParams(window.location.search).get(`lang`),stored:e.stored===void 0?localStorage.getItem(c):e.stored,navigatorLanguages:e.navigatorLanguages??navigator.languages??(navigator.language?[navigator.language]:[]),supported:s,fallback:`en`});return m(t),_(e.root??document),t}function y(e){alert(e)}var b=[];function x(){return e(document.getElementById(`quizTitle`),document.getElementById(`teacherName`),document.getElementById(`instructions`),document.getElementById(`quizDate`),b)}function S(e){document.getElementById(`quizTitle`).value=e.title||``,document.getElementById(`teacherName`).value=e.teacherName||``,document.getElementById(`instructions`).value=e.instructions||``,document.getElementById(`quizDate`).value=e.date||``,b=e.questions||[]}function C(){b.push({text:``,answers:[``,``,``,``],correctAnswers:[!1,!1,!1,!1],explanation:``}),E()}function w(e){b.splice(e,1),E()}function T(e){return String(e).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`).replace(/"/g,`&quot;`).replace(/'/g,`&#39;`)}function E(){let e=document.getElementById(`questionsContainer`);e.innerHTML=``,b.forEach((t,n)=>{let r=document.createElement(`div`);r.className=`question`,r.innerHTML=`
-      <h4>${p(`question.heading`,{n:n+1})}</h4>
+<script>(function() {
+	// src/quizData.js
+	function buildQuizPayload(titleEl, teacherEl, instrEl, dateEl, questions) {
+		return {
+			title: titleEl.value,
+			teacherName: teacherEl.value,
+			instructions: instrEl.value,
+			date: dateEl.value,
+			questions
+		};
+	}
+	function serializeQuiz(data) {
+		return JSON.stringify(data);
+	}
+	function deserializeQuiz(json) {
+		return JSON.parse(json);
+	}
+	// src/i18n/detect.js
+	function normalizeTag(tag) {
+		return typeof tag === "string" ? tag.trim().toLowerCase() : "";
+	}
+	function matchTag(tag, supported) {
+		const normalized = normalizeTag(tag);
+		if (!normalized) return null;
+		return supported.find((s) => s.toLowerCase() === normalized) ?? supported.find((s) => s.toLowerCase() === normalized.split("-")[0]) ?? null;
+	}
+	function detectLanguage({ urlLang, stored, navigatorLanguages = [], supported, fallback }) {
+		return matchTag(urlLang, supported) ?? matchTag(stored, supported) ?? navigatorLanguages.map((tag) => matchTag(tag, supported)).find(Boolean) ?? matchTag(fallback, supported) ?? supported[0];
+	}
+	// src/i18n/index.js
+	var locales = {
+		en: {
+			ui: {
+				app: { "title": "Multiple Choice Printable Quiz Maker" },
+				lang: { "label": "Language" },
+				form: {
+					"quiz_title": "Quiz Title",
+					"quiz_title_placeholder": "Enter quiz title",
+					"teacher_name": "Teacher's Name",
+					"teacher_name_placeholder": "Enter teacher's name",
+					"instructions": "Instructions",
+					"instructions_placeholder": "Enter instructions",
+					"date": "Date",
+					"date_placeholder": "Enter date"
+				},
+				actions: {
+					"add_question": "Add New Question",
+					"save_progress": "Save Progress",
+					"load_progress": "Load Progress",
+					"preview_quiz": "Preview Quiz",
+					"export_quiz_data": "Export Quiz Data",
+					"import_quiz_data": "Import Quiz Data",
+					"generate_word_document": "Generate Word Document",
+					"print_answer_sheet": "Print Answer Sheet",
+					"shuffle_questions": "Shuffle Questions",
+					"shuffle_answers": "Shuffle Answers",
+					"clear_quiz": "Clear Quiz",
+					"close": "Close"
+				},
+				preview: { "heading": "Quiz Preview" },
+				question: {
+					"heading": "Question {{n}}",
+					"text_label": "Question Text",
+					"explanation_label": "Explanation (optional)",
+					"remove": "Remove Question"
+				},
+				toast: {
+					"saved": "Progress saved!",
+					"loaded": "Progress loaded!",
+					"no_saved": "No saved progress found.",
+					"cleared": "Quiz cleared!",
+					"no_file_selected": "No file selected.",
+					"imported": "File imported",
+					"import_failed": "Failed to import quiz data."
+				}
+			},
+			docs: {
+				document: { "title": "Quiz Document" },
+				answer_sheet: {
+					"page_title": "Answer Sheet",
+					"heading": "{{title}} - Answer Sheet"
+				},
+				labels: {
+					"teacher": "Teacher:",
+					"date": "Date:",
+					"question": "Question {{n}}",
+					"correct": "(Correct)",
+					"explanation": "Explanation:"
+				}
+			}
+		},
+		es: {
+			ui: {
+				app: { "title": "Creador de exámenes imprimibles de opción múltiple" },
+				lang: { "label": "Idioma" },
+				form: {
+					"quiz_title": "Título del examen",
+					"quiz_title_placeholder": "Introduce el título del examen",
+					"teacher_name": "Nombre del docente",
+					"teacher_name_placeholder": "Introduce el nombre del docente",
+					"instructions": "Instrucciones",
+					"instructions_placeholder": "Introduce las instrucciones",
+					"date": "Fecha",
+					"date_placeholder": "Introduce la fecha"
+				},
+				actions: {
+					"add_question": "Añadir nueva pregunta",
+					"save_progress": "Guardar progreso",
+					"load_progress": "Cargar progreso",
+					"preview_quiz": "Vista previa del examen",
+					"export_quiz_data": "Exportar datos del examen",
+					"import_quiz_data": "Importar datos del examen",
+					"generate_word_document": "Generar documento de Word",
+					"print_answer_sheet": "Imprimir hoja de respuestas",
+					"shuffle_questions": "Mezclar preguntas",
+					"shuffle_answers": "Mezclar respuestas",
+					"clear_quiz": "Vaciar examen",
+					"close": "Cerrar"
+				},
+				preview: { "heading": "Vista previa del examen" },
+				question: {
+					"heading": "Pregunta {{n}}",
+					"text_label": "Texto de la pregunta",
+					"explanation_label": "Explicación (opcional)",
+					"remove": "Quitar pregunta"
+				},
+				toast: {
+					"saved": "¡Progreso guardado!",
+					"loaded": "¡Progreso cargado!",
+					"no_saved": "No se encontró ningún progreso guardado.",
+					"cleared": "¡Examen vaciado!",
+					"no_file_selected": "Ningún archivo seleccionado.",
+					"imported": "Archivo importado",
+					"import_failed": "No se pudieron importar los datos del examen."
+				}
+			},
+			docs: {
+				document: { "title": "Documento de examen" },
+				answer_sheet: {
+					"page_title": "Hoja de respuestas",
+					"heading": "{{title}} - Hoja de respuestas"
+				},
+				labels: {
+					"teacher": "Docente:",
+					"date": "Fecha:",
+					"question": "Pregunta {{n}}",
+					"correct": "(Correcto)",
+					"explanation": "Explicación:"
+				}
+			}
+		},
+		fr: {
+			ui: {
+				app: { "title": "Créateur de quiz imprimibles à choix multiples" },
+				lang: { "label": "Langue" },
+				form: {
+					"quiz_title": "Titre du quiz",
+					"quiz_title_placeholder": "Saisissez le titre du quiz",
+					"teacher_name": "Nom de l'enseignant",
+					"teacher_name_placeholder": "Saisissez le nom de l'enseignant",
+					"instructions": "Consignes",
+					"instructions_placeholder": "Saisissez les consignes",
+					"date": "Date",
+					"date_placeholder": "Saisissez la date"
+				},
+				actions: {
+					"add_question": "Ajouter une question",
+					"save_progress": "Enregistrer la progression",
+					"load_progress": "Charger la progression",
+					"preview_quiz": "Aperçu du quiz",
+					"export_quiz_data": "Exporter les données du quiz",
+					"import_quiz_data": "Importer les données du quiz",
+					"generate_word_document": "Générer un document Word",
+					"print_answer_sheet": "Imprimer la grille de réponses",
+					"shuffle_questions": "Mélanger les questions",
+					"shuffle_answers": "Mélanger les réponses",
+					"clear_quiz": "Effacer le quiz",
+					"close": "Fermer"
+				},
+				preview: { "heading": "Aperçu du quiz" },
+				question: {
+					"heading": "Question {{n}}",
+					"text_label": "Texte de la question",
+					"explanation_label": "Explication (facultatif)",
+					"remove": "Supprimer la question"
+				},
+				toast: {
+					"saved": "Progression enregistrée!",
+					"loaded": "Progression chargée!",
+					"no_saved": "Aucune progression enregistrée trouvée.",
+					"cleared": "Quiz effacé!",
+					"no_file_selected": "Aucun fichier sélectionné.",
+					"imported": "Fichier importé",
+					"import_failed": "Échec de l'importation des données du quiz."
+				}
+			},
+			docs: {
+				document: { "title": "Document du quiz" },
+				answer_sheet: {
+					"page_title": "Grille de réponses",
+					"heading": "{{title}} - Grille de réponses"
+				},
+				labels: {
+					"teacher": "Enseignant:",
+					"date": "Date:",
+					"question": "Question {{n}}",
+					"correct": "(Correct)",
+					"explanation": "Explication:"
+				}
+			}
+		}
+	};
+	var SUPPORTED_LOCALES = Object.keys(locales);
+	var LANG_STORAGE_KEY = "lang";
+	var LOCALE_LABELS = {
+		en: "🌹 en",
+		es: "🧉 es",
+		fr: "⚜️ fr"
+	};
+	var activeLocale = "en";
+	function lookupKey(tree, key) {
+		let node = tree;
+		for (const part of String(key).split(".")) {
+			if (node == null || typeof node !== "object") return void 0;
+			node = node[part];
+		}
+		return typeof node === "string" ? node : void 0;
+	}
+	function escapeHTML$1(value) {
+		return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+	}
+	function t(key, params) {
+		const active = locales[activeLocale];
+		const fallback = locales["en"];
+		const template = lookupKey(active?.ui, key) ?? lookupKey(active?.docs, key) ?? lookupKey(fallback.ui, key) ?? lookupKey(fallback.docs, key) ?? key;
+		if (!params) return template;
+		return template.replace(/\{\{(\w+)\}\}/g, (match, name) => Object.prototype.hasOwnProperty.call(params, name) ? escapeHTML$1(params[name]) : match);
+	}
+	function setLocale(lang) {
+		if (!locales[lang]) return false;
+		activeLocale = lang;
+		return true;
+	}
+	function mountLanguageSwitcher(container = document.getElementById("langSwitcher")) {
+		if (!container) return null;
+		const select = document.createElement("select");
+		select.id = "langSwitcherSelect";
+		select.setAttribute("aria-label", t("lang.label"));
+		for (const code of SUPPORTED_LOCALES) {
+			const option = document.createElement("option");
+			option.value = code;
+			option.textContent = LOCALE_LABELS[code] ?? code;
+			select.appendChild(option);
+		}
+		select.value = activeLocale;
+		select.addEventListener("change", () => {
+			if (!setLocale(select.value)) return;
+			localStorage.setItem(LANG_STORAGE_KEY, activeLocale);
+			applyLanguage();
+			select.setAttribute("aria-label", t("lang.label"));
+		});
+		container.appendChild(select);
+		return select;
+	}
+	function getLocale() {
+		return activeLocale;
+	}
+	function applyLanguage(root = document) {
+		for (const el of root.querySelectorAll("[data-i18n]")) el.textContent = t(el.getAttribute("data-i18n"));
+		for (const el of root.querySelectorAll("[data-i18n-placeholder]")) el.setAttribute("placeholder", t(el.getAttribute("data-i18n-placeholder")));
+		document.title = t("app.title");
+		document.documentElement.lang = activeLocale;
+	}
+	function initI18n(env = {}) {
+		const lang = detectLanguage({
+			urlLang: env.urlLang ?? new URLSearchParams(window.location.search).get("lang"),
+			stored: env.stored !== void 0 ? env.stored : localStorage.getItem(LANG_STORAGE_KEY),
+			navigatorLanguages: env.navigatorLanguages ?? navigator.languages ?? (navigator.language ? [navigator.language] : []),
+			supported: SUPPORTED_LOCALES,
+			fallback: "en"
+		});
+		setLocale(lang);
+		applyLanguage(env.root ?? document);
+		return lang;
+	}
+	// src/ui.js
+	function notify(msg) {
+		alert(msg);
+	}
+	var questions = [];
+	function getQuizData() {
+		return buildQuizPayload(document.getElementById("quizTitle"), document.getElementById("teacherName"), document.getElementById("instructions"), document.getElementById("quizDate"), questions);
+	}
+	function setQuizData(data) {
+		document.getElementById("quizTitle").value = data.title || "";
+		document.getElementById("teacherName").value = data.teacherName || "";
+		document.getElementById("instructions").value = data.instructions || "";
+		document.getElementById("quizDate").value = data.date || "";
+		questions = data.questions || [];
+	}
+	function addQuestion() {
+		questions.push({
+			text: "",
+			answers: [
+				"",
+				"",
+				"",
+				""
+			],
+			correctAnswers: [
+				false,
+				false,
+				false,
+				false
+			],
+			explanation: ""
+		});
+		renderQuestions();
+	}
+	function removeQuestion(index) {
+		questions.splice(index, 1);
+		renderQuestions();
+	}
+	function escapeHTML(str) {
+		return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+	}
+	function renderQuestions() {
+		const container = document.getElementById("questionsContainer");
+		container.innerHTML = "";
+		questions.forEach((q, index) => {
+			const questionDiv = document.createElement("div");
+			questionDiv.className = "question";
+			questionDiv.innerHTML = `
+      <h4>${t("question.heading", { n: index + 1 })}</h4>
       <div>
-        <label>${p(`question.text_label`)}</label>
-        <input type="text" value="${T(t.text)}" oninput="updateQuestionText(${n}, this.value)">
+        <label>${t("question.text_label")}</label>
+        <input type="text" value="${escapeHTML(q.text)}" oninput="updateQuestionText(${index}, this.value)">
       </div>
-      ${t.answers.map((e,r)=>`
+      ${q.answers.map((a, i) => `
         <div class="answer-row">
-          <label>${String.fromCharCode(65+r)}</label>
-          <input type="text" value="${T(e)}" oninput="updateAnswer(${n}, ${r}, this.value)">
-          <input type="checkbox" ${t.correctAnswers[r]?`checked`:``} onchange="updateCorrectAnswer(${n}, ${r}, this.checked)">
-        </div>`).join(``)}
+          <label>${String.fromCharCode(65 + i)}</label>
+          <input type="text" value="${escapeHTML(a)}" oninput="updateAnswer(${index}, ${i}, this.value)">
+          <input type="checkbox" ${q.correctAnswers[i] ? "checked" : ""} onchange="updateCorrectAnswer(${index}, ${i}, this.checked)">
+        </div>`).join("")}
       <div>
-        <label>${p(`question.explanation_label`)}</label>
-        <textarea oninput="updateExplanation(${n}, this.value)">${T(t.explanation)}</textarea>
+        <label>${t("question.explanation_label")}</label>
+        <textarea oninput="updateExplanation(${index}, this.value)">${escapeHTML(q.explanation)}</textarea>
       </div>
-      <button onclick="removeQuestion(${n})">${p(`question.remove`)}</button>
-    `,e.appendChild(r)})}function D(e,t){b[e].text=t}function O(e,t,n){b[e].answers[t]=n}function k(e,t,n){b[e].correctAnswers[t]=n}function A(e,t){b[e].explanation=t}function j(){let e=x();localStorage.setItem(`quizData`,t(e)),y(p(`toast.saved`))}function M(){let e=localStorage.getItem(`quizData`);e?(S(n(e)),E(),y(p(`toast.loaded`))):y(p(`toast.no_saved`))}function N(){let e=document.getElementById(`previewContent`);e.innerHTML=`
-    <h3>${T(document.getElementById(`quizTitle`).value)}</h3>
-    <p><strong>${p(`labels.teacher`)}</strong> ${T(document.getElementById(`teacherName`).value)}</p>
-    <p><strong>${p(`labels.date`)}</strong> ${T(document.getElementById(`quizDate`).value)}</p>
-    <p>${T(document.getElementById(`instructions`).value)}</p>
-    ${b.map((e,t)=>`
+      <button onclick="removeQuestion(${index})">${t("question.remove")}</button>
+    `;
+			container.appendChild(questionDiv);
+		});
+	}
+	function updateQuestionText(index, value) {
+		questions[index].text = value;
+	}
+	function updateAnswer(qIndex, aIndex, value) {
+		questions[qIndex].answers[aIndex] = value;
+	}
+	function updateCorrectAnswer(qIndex, aIndex, isChecked) {
+		questions[qIndex].correctAnswers[aIndex] = isChecked;
+	}
+	function updateExplanation(index, value) {
+		questions[index].explanation = value;
+	}
+	function saveProgress() {
+		const quizData = getQuizData();
+		localStorage.setItem("quizData", serializeQuiz(quizData));
+		notify(t("toast.saved"));
+	}
+	function loadProgress() {
+		const saved = localStorage.getItem("quizData");
+		if (saved) {
+			setQuizData(deserializeQuiz(saved));
+			renderQuestions();
+			notify(t("toast.loaded"));
+		} else notify(t("toast.no_saved"));
+	}
+	function previewQuiz() {
+		const previewContent = document.getElementById("previewContent");
+		previewContent.innerHTML = `
+    <h3>${escapeHTML(document.getElementById("quizTitle").value)}</h3>
+    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p>${escapeHTML(document.getElementById("instructions").value)}</p>
+    ${questions.map((q, i) => `
       <div>
-        <h4>${p(`labels.question`,{n:t+1})}</h4>
-        <p>${T(e.text)}</p>
-        ${e.answers.map((e,t)=>`<p style='margin-left:20px;'>${String.fromCharCode(65+t)}. ${T(e)}</p>`).join(``)}
-      </div>`).join(``)}
-  `,document.getElementById(`previewModal`).style.display=`block`}function P(){document.getElementById(`previewModal`).style.display=`none`}function F(){let e=`data:text/json;charset=utf-8,`+encodeURIComponent(t(x())),n=document.createElement(`a`);n.setAttribute(`href`,e),n.setAttribute(`download`,`quiz_data.json`),document.body.appendChild(n),n.click(),n.remove()}function I(){document.getElementById(`importFileInput`).click()}function L(e){let t=e.target.files[0];if(!t){y(p(`toast.no_file_selected`));return}let r=new FileReader;r.onload=t=>{try{S(n(t.target.result)),E(),y(p(`toast.imported`))}catch{y(p(`toast.import_failed`))}e.target.value=``},r.readAsText(t)}function R(){let e=`
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>
+        ${q.answers.map((a, j) => `<p style='margin-left:20px;'>${String.fromCharCode(65 + j)}. ${escapeHTML(a)}</p>`).join("")}
+      </div>`).join("")}
+  `;
+		document.getElementById("previewModal").style.display = "block";
+	}
+	function closePreview() {
+		document.getElementById("previewModal").style.display = "none";
+	}
+	function exportQuizData() {
+		const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(serializeQuiz(getQuizData()));
+		const a = document.createElement("a");
+		a.setAttribute("href", dataStr);
+		a.setAttribute("download", "quiz_data.json");
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+	}
+	function importQuizData() {
+		document.getElementById("importFileInput").click();
+	}
+	function handleFileImport(event) {
+		const file = event.target.files[0];
+		if (!file) {
+			notify(t("toast.no_file_selected"));
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			try {
+				setQuizData(deserializeQuiz(e.target.result));
+				renderQuestions();
+				notify(t("toast.imported"));
+			} catch {
+				notify(t("toast.import_failed"));
+			}
+			event.target.value = "";
+		};
+		reader.readAsText(file);
+	}
+	function generateWordDocument() {
+		let docContent = `
     <!DOCTYPE html>
-    <html lang="${T(g())}">
-    <head><meta charset="UTF-8"><title>${p(`document.title`)}</title></head><body>`;e+=`
-    <h2>${T(document.getElementById(`quizTitle`).value)}</h2>
-    <p><strong>${p(`labels.teacher`)}</strong> ${T(document.getElementById(`teacherName`).value)}</p>
-    <p><strong>${p(`labels.date`)}</strong> ${T(document.getElementById(`quizDate`).value)}</p>
-    <p>${T(document.getElementById(`instructions`).value)}</p>`,b.forEach((t,n)=>{e+=`
+    <html lang="${escapeHTML(getLocale())}">
+    <head><meta charset="UTF-8"><title>${t("document.title")}</title></head><body>`;
+		docContent += `
+    <h2>${escapeHTML(document.getElementById("quizTitle").value)}</h2>
+    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p>${escapeHTML(document.getElementById("instructions").value)}</p>`;
+		questions.forEach((q, i) => {
+			docContent += `
       <div>
-        <h4>${p(`labels.question`,{n:n+1})}</h4>
-        <p>${T(t.text)}</p>`,t.answers.forEach((t,n)=>{e+=`<p style='margin-left:20px;'>${String.fromCharCode(65+n)}. ${T(t)}</p>`}),e+=`</div>`}),e+=`</body></html>`;let t=new Blob([e],{type:`application/msword`}),n=URL.createObjectURL(t),r=document.createElement(`a`);r.href=n,r.download=`quiz_document.doc`,document.body.appendChild(r),r.click(),document.body.removeChild(r)}function z(){let e=`
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>`;
+			q.answers.forEach((a, idx) => {
+				docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)}</p>`;
+			});
+			docContent += `</div>`;
+		});
+		docContent += `</body></html>`;
+		const blob = new Blob([docContent], { type: "application/msword" });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = "quiz_document.doc";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+	function printAnswerSheet() {
+		let content = `
     <!DOCTYPE html>
-    <html lang="${T(g())}">
-    <head><meta charset="UTF-8"><title>${p(`answer_sheet.page_title`)}</title></head><body>`;e+=`
-    <h2>${p(`answer_sheet.heading`,{title:document.getElementById(`quizTitle`).value})}</h2>`,b.forEach((t,n)=>{e+=`
+    <html lang="${escapeHTML(getLocale())}">
+    <head><meta charset="UTF-8"><title>${t("answer_sheet.page_title")}</title></head><body>`;
+		content += `
+    <h2>${t("answer_sheet.heading", { title: document.getElementById("quizTitle").value })}</h2>`;
+		questions.forEach((q, i) => {
+			content += `
       <div>
-        <h4>${p(`labels.question`,{n:n+1})}</h4>
-        <p>${T(t.text)}</p>`,t.answers.forEach((n,r)=>{e+=`<p style='margin-left:20px;'>${String.fromCharCode(65+r)}. ${T(n)} ${t.correctAnswers[r]?p(`labels.correct`):``}</p>`}),t.explanation&&(e+=`<p><strong>${p(`labels.explanation`)}</strong> ${T(t.explanation)}</p>`),e+=`</div>`}),e+=`</body></html>`;let t=new Blob([e],{type:`application/msword`}),n=URL.createObjectURL(t),r=document.createElement(`a`);r.href=n,r.download=`answer_sheet.doc`,document.body.appendChild(r),r.click(),document.body.removeChild(r)}function B(){for(let e=b.length-1;e>0;e--){let t=Math.floor(Math.random()*(e+1));[b[e],b[t]]=[b[t],b[e]]}E()}function V(){b.forEach(e=>{let t=e.answers.map((e,t)=>({answer:e,idx:t}));for(let e=t.length-1;e>0;e--){let n=Math.floor(Math.random()*(e+1));[t[e],t[n]]=[t[n],t[e]]}let n=t.map(e=>e.answer),r=n.map(n=>e.correctAnswers[t.find(e=>e.answer===n).idx]);e.answers=n,e.correctAnswers=r}),E()}function H(){b=[],document.getElementById(`quizTitle`).value=``,document.getElementById(`teacherName`).value=``,document.getElementById(`instructions`).value=``,document.getElementById(`quizDate`).value=``,E(),y(p(`toast.cleared`))}if(typeof window<`u`&&Object.assign(window,{addQuestion:C,saveProgress:j,loadProgress:M,previewQuiz:N,exportQuizData:F,importQuizData:I,generateWordDocument:R,printAnswerSheet:z,shuffleQuestions:B,shuffleAnswers:V,clearQuiz:H,handleFileImport:L,closePreview:P,removeQuestion:w,updateQuestionText:D,updateAnswer:O,updateCorrectAnswer:k,updateExplanation:A}),typeof document<`u`){let e=document.getElementById(`importBtn`);e&&e.addEventListener(`click`,I),v(),h()}})();</script>
+        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <p>${escapeHTML(q.text)}</p>`;
+			q.answers.forEach((a, idx) => {
+				content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)} ${q.correctAnswers[idx] ? t("labels.correct") : ""}</p>`;
+			});
+			if (q.explanation) content += `<p><strong>${t("labels.explanation")}</strong> ${escapeHTML(q.explanation)}</p>`;
+			content += `</div>`;
+		});
+		content += `</body></html>`;
+		const blob = new Blob([content], { type: "application/msword" });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = "answer_sheet.doc";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+	function shuffleQuestions() {
+		for (let i = questions.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[questions[i], questions[j]] = [questions[j], questions[i]];
+		}
+		renderQuestions();
+	}
+	function shuffleAnswers() {
+		questions.forEach((question) => {
+			const withIdx = question.answers.map((a, i) => ({
+				answer: a,
+				idx: i
+			}));
+			for (let i = withIdx.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[withIdx[i], withIdx[j]] = [withIdx[j], withIdx[i]];
+			}
+			const shuffledAnswers = withIdx.map((o) => o.answer);
+			const newCorrect = shuffledAnswers.map((a) => question.correctAnswers[withIdx.find((o) => o.answer === a).idx]);
+			question.answers = shuffledAnswers;
+			question.correctAnswers = newCorrect;
+		});
+		renderQuestions();
+	}
+	function clearQuiz() {
+		questions = [];
+		document.getElementById("quizTitle").value = "";
+		document.getElementById("teacherName").value = "";
+		document.getElementById("instructions").value = "";
+		document.getElementById("quizDate").value = "";
+		renderQuestions();
+		notify(t("toast.cleared"));
+	}
+	if (typeof window !== "undefined") Object.assign(window, {
+		addQuestion,
+		saveProgress,
+		loadProgress,
+		previewQuiz,
+		exportQuizData,
+		importQuizData,
+		generateWordDocument,
+		printAnswerSheet,
+		shuffleQuestions,
+		shuffleAnswers,
+		clearQuiz,
+		handleFileImport,
+		closePreview,
+		removeQuestion,
+		updateQuestionText,
+		updateAnswer,
+		updateCorrectAnswer,
+		updateExplanation
+	});
+	if (typeof document !== "undefined") {
+		const importBtn = document.getElementById("importBtn");
+		if (importBtn) importBtn.addEventListener("click", importQuizData);
+		initI18n();
+		mountLanguageSwitcher();
+	}
+})();</script>
   </body>
 </html>

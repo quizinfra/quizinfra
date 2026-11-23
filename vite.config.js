@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import { parse } from 'acorn';
 
 // The singlefile plugin inlines the bundle but keeps `type="module"` on
 // the <script> tag. Module scripts are deferred (re-introducing the
@@ -59,14 +60,86 @@ const classicInlineScript = {
   },
 };
 
+// The artifact ships unminified for reviewability, but the hand-written
+// comments (mostly JSDoc) cost ~14% of the gzipped wire size while being
+// redundant with src/, where they are maintained. Strip them from the
+// bundle — but keep Rollup's `// src/…` module banners, the cheapest
+// navigational aid in a concatenated file. Parsing with acorn (rather
+// than regexing) guarantees we only delete real comment tokens, never a
+// `//` or `/*` that lives inside a string literal (the Word-document and
+// data-URI string-building code is exactly the genre that grows such
+// strings, e.g. `http://` namespaces).
+const stripJsComments = (js) => {
+  const comments = [];
+  parse(js, { ecmaVersion: 'latest', onComment: comments });
+  let out = '';
+  let pos = 0;
+  for (const comment of comments) {
+    const text = js.slice(comment.start, comment.end);
+    if (/^\/\/\s*src\//.test(text)) continue; // keep module map banners
+    out += js.slice(pos, comment.start);
+    pos = comment.end;
+  }
+  return out + js.slice(pos);
+};
+
+// One linear pass over the artifact: each inline-script segment is
+// comment-stripped by acorn (never touching `//` or `/*` inside string
+// literals), CSS block comments are removed only inside <style>, HTML
+// comments only outside code segments — so a `<!--` or `/*` that ever
+// appears in bundle string code is provably untouched.
+const CODE_SEGMENT =
+  /(<script(?![^>]*\bsrc=)[^>]*>)([\s\S]*?)(<\/script>)|(<style>)([\s\S]*?)(<\/style>)/g;
+
+const stripArtifactComments = {
+  name: 'strip-artifact-comments',
+  enforce: 'post',
+  // Runs after classicInlineScript (registration order within the same
+  // generateBundle@post stage) so it operates on the final artifact text.
+  generateBundle: {
+    order: 'post',
+    handler(_options, bundle) {
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (!fileName.endsWith('.html') || chunk.type !== 'asset') continue;
+        const source = String(chunk.source);
+        let out = '';
+        let last = 0;
+        let match;
+        CODE_SEGMENT.lastIndex = 0;
+        while ((match = CODE_SEGMENT.exec(source))) {
+          out += source.slice(last, match.index).replace(/<!--[\s\S]*?-->/g, '');
+          if (match[2] !== undefined) {
+            out += match[1] + stripJsComments(match[2]) + match[3];
+          } else {
+            out += match[4] + match[5].replace(/\/\*[\s\S]*?\*\//g, '') + match[6];
+          }
+          last = match.index + match[0].length;
+        }
+        out += source.slice(last).replace(/<!--[\s\S]*?-->/g, '');
+        // Drop lines left blank by the removed comments.
+        chunk.source = out
+          .split('\n')
+          .filter((line) => line.trim() !== '')
+          .join('\n');
+      }
+    },
+  },
+};
+
 export default defineConfig({
-  plugins: [viteSingleFile(), classicInlineScript],
+  plugins: [viteSingleFile(), classicInlineScript, stripArtifactComments],
   build: {
     // The deployable artifact: one self-contained docs/index.html
     // (HTML + CSS + all JS inlined). Committed to the repository; CI
     // verifies that the checked-in copy matches a fresh build.
     outDir: 'docs',
     emptyOutDir: true,
+    // Deliberately unminified: the committed artifact is a reviewable,
+    // auditable file (source comments, identifiers and line breaks are
+    // preserved, so diffs stay surgical). The raw size grows ~46%
+    // (≈19.5 KB -> ≈28.4 KB; gzip on the wire ≈5.5 KB -> ≈7.5 KB, which
+    // GitHub Pages compresses for us). Do not re-enable minification.
+    minify: false,
     assetsInlineLimit: Number.MAX_SAFE_INTEGER,
     cssCodeSplit: false,
     // Inline as a classic script (no "type=module" defer semantics) so the
