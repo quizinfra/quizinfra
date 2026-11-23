@@ -44,6 +44,20 @@ function lookupKey(tree, key) {
   return typeof node === "string" ? node : undefined;
 }
 
+/**
+ * Indexed mode (build artifacts only): the build may replace each locale's
+ * nested message trees with ONE flat string array and rewrite every lookup
+ * site to a positional index (build/i18n-indexed.js). entry[key] accepts
+ * both numeric indices and the numeric strings carried by data-i18n
+ * attributes. In src/dev/tests locales hold plain objects, so this always
+ * returns undefined and lookupKey() decides.
+ */
+function lookupIndexed(entry, key) {
+  if (!Array.isArray(entry)) return undefined;
+  const value = entry[key];
+  return typeof value === "string" ? value : undefined;
+}
+
 function escapeHTML(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -54,16 +68,19 @@ function escapeHTML(value) {
 }
 
 /**
- * Translate a dot-path key. Interpolates {{name}} params; params are
- * HTML-escaped by default because most templating in this app is
- * innerHTML-based. Missing keys render as the key itself.
+ * Translate a dot-path key (or an array index in indexed-mode artifacts).
+ * Interpolates {{name}} params; params are HTML-escaped by default because
+ * most templating in this app is innerHTML-based. Missing keys render as
+ * the key itself.
  */
 export function t(key, params) {
   const active = locales[activeLocale];
   const fallback = locales[FALLBACK_LOCALE];
   const template =
+    lookupIndexed(active, key) ??
     lookupKey(active?.ui, key) ??
     lookupKey(active?.docs, key) ??
+    lookupIndexed(fallback, key) ??
     lookupKey(fallback.ui, key) ??
     lookupKey(fallback.docs, key) ??
     key;

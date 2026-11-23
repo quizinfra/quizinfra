@@ -6,6 +6,15 @@
 import { describe, expect, test } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parse as parseJs } from 'acorn';
+
+import { buildFlatRegistry } from '../../build/i18n-indexed.js';
+import enUi from '../../src/i18n/locales/en/ui.json';
+import enDocs from '../../src/i18n/locales/en/docs.json';
+import esUi from '../../src/i18n/locales/es/ui.json';
+import esDocs from '../../src/i18n/locales/es/docs.json';
+import frUi from '../../src/i18n/locales/fr/ui.json';
+import frDocs from '../../src/i18n/locales/fr/docs.json';
 
 const ARTIFACT_PATH = join(process.cwd(), 'docs', 'index.html');
 const html = existsSync(ARTIFACT_PATH) ? readFileSync(ARTIFACT_PATH, 'utf8') : null;
@@ -130,6 +139,115 @@ describe('single-file artifact (docs/index.html)', () => {
       ).toBe('Texte de la question');
     } finally {
       window.close();
+    }
+  });
+
+  // ---- Indexed locales (build/i18n-indexed.js) --------------------------
+  // The artifact ships each locale as ONE flat string array and every
+  // lookup site as a positional index. These assertions re-derive the
+  // expected payload from the src JSON files with an INDEPENDENT walker
+  // (local AST code, not the build module's own extraction) so a corrupted
+  // transform cannot verify itself.
+
+  function inlineScriptText(): string {
+    const scripts = Array.from(parse().querySelectorAll('script'));
+    const text = scripts
+      .map((s) => s.textContent ?? '')
+      .sort((a, b) => b.length - a.length)[0];
+    expect(text.length).toBeGreaterThan(1000);
+    return text;
+  }
+
+  /** Deep-walk an AST calling `visit(node)` on every node. */
+  function walkAst(node: unknown, visit: (node: any) => void): void {
+    if (node == null || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      for (const child of node) walkAst(child, visit);
+      return;
+    }
+    if (typeof (node as any).type !== 'string') return;
+    visit(node);
+    for (const key of Object.keys(node)) {
+      if (key === 'type' || key === 'start' || key === 'end') continue;
+      walkAst((node as any)[key], visit);
+    }
+  }
+
+  const realRegistry = {
+    en: { ui: enUi, docs: enDocs },
+    es: { ui: esUi, docs: esDocs },
+    fr: { ui: frUi, docs: frDocs },
+  };
+
+  test('locales ship as flat positional arrays matching the src files', () => {
+    const expected = buildFlatRegistry(realRegistry);
+    const ast = parseJs(inlineScriptText(), { ecmaVersion: 'latest' });
+
+    const arrays: Record<string, string[]> = {};
+    const keyedCalls: string[] = [];
+    walkAst(ast, (node) => {
+      if (
+        node.type === 'VariableDeclarator' &&
+        node.id?.name === 'locales' &&
+        node.init?.type === 'ObjectExpression'
+      ) {
+        for (const property of node.init.properties) {
+          expect(property.value?.type).toBe('ArrayExpression');
+          arrays[property.key.name ?? property.key.value] =
+            property.value.elements.map((element: any) => {
+              expect(element.type).toBe('Literal');
+              expect(typeof element.value).toBe('string');
+              return element.value;
+            });
+        }
+      }
+      // No string-keyed t() calls may survive anywhere in the bundle.
+      if (
+        node.type === 'CallExpression' &&
+        node.callee?.type === 'Identifier' &&
+        node.callee.name === 't' &&
+        node.arguments[0]?.type === 'Literal' &&
+        typeof node.arguments[0].value === 'string'
+      ) {
+        keyedCalls.push(node.arguments[0].value);
+      }
+    });
+
+    expect(Object.keys(arrays).sort()).toEqual(['en', 'es', 'fr']);
+    expect(arrays.en.length).toBe(expected.keyOrder.length);
+    // Full payload parity against the source locale files.
+    expect(arrays).toEqual(expected.flatLocales);
+    expect(keyedCalls).toEqual([]);
+  });
+
+  test('every data-i18n attribute is an index resolving to its English text', () => {
+    const { flatLocales } = buildFlatRegistry(realRegistry);
+    const doc = parse();
+    const attributed = [
+      ...Array.from(doc.querySelectorAll('[data-i18n]')),
+      ...Array.from(doc.querySelectorAll('[data-i18n-placeholder]')),
+    ];
+    expect(attributed.length).toBeGreaterThan(20);
+    for (const el of attributed) {
+      const raw =
+        el.getAttribute('data-i18n') ?? el.getAttribute('data-i18n-placeholder')!;
+      expect(raw, `attribute value must be a bare index: ${raw}`).toMatch(/^\d+$/);
+      const text = el.getAttribute('placeholder') ?? el.textContent;
+      expect(text, `static English text of [data-i18n="${raw}"]`).toBe(
+        flatLocales.en[Number(raw)]
+      );
+    }
+  });
+
+  test('no key-name string survives anywhere in the artifact', () => {
+    const { keyOrder } = buildFlatRegistry(realRegistry);
+    // The 100%-elimination guard: every leaf path (quoted, as it could
+    // only ever appear as a JS string or HTML attribute value) must be
+    // gone from the entire file.
+    for (const slot of keyOrder) {
+      expect(html, `key "${slot.path}" survived indexing`).not.toContain(
+        `"${slot.path}"`
+      );
     }
   });
 });

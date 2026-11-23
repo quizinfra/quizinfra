@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { parse } from 'acorn';
+import { createIndexedLocalesPlugins } from './build/i18n-indexed.js';
 
 // The singlefile plugin inlines the bundle but keeps `type="module"` on
 // the <script> tag. Module scripts are deferred (re-introducing the
@@ -127,7 +128,18 @@ const stripArtifactComments = {
 };
 
 export default defineConfig({
-  plugins: [viteSingleFile(), classicInlineScript, stripArtifactComments],
+  plugins: [
+    viteSingleFile(),
+    // Indexed locales: rewrites the `locales` literal into flat per-locale
+    // string arrays and every lookup site (t("a.b") calls, data-i18n
+    // attributes) into positional indices, deleting all key-name strings.
+    // The chunk pass runs @pre (before singlefile inlines it); the HTML
+    // pass runs @post, after the other post plugins (registration order),
+    // and hard-fails on any unmapped key.
+    ...createIndexedLocalesPlugins(),
+    classicInlineScript,
+    stripArtifactComments,
+  ],
   build: {
     // The deployable artifact: one self-contained docs/index.html
     // (HTML + CSS + all JS inlined). Committed to the repository; CI
