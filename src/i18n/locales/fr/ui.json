@@ -2,6 +2,9 @@
   "app": {
     "title": "Créateur de quiz imprimibles à choix multiples"
   },
+  "lang": {
+    "label": "Langue"
+  },
   "form": {
     "quiz_title": "Titre du quiz",
     "quiz_title_placeholder": "Saisissez le titre du quiz",

@@ -23,6 +23,16 @@ export const SUPPORTED_LOCALES = Object.keys(locales);
 export const FALLBACK_LOCALE = "en";
 export const LANG_STORAGE_KEY = "lang";
 
+// Compact, discreet option labels: an emblem per language plus its code
+// (the bare code keeps the options readable for screen readers and text
+//-only rendering). Deliberately NOT translated, so every user can
+// recognise their own language regardless of the active locale.
+export const LOCALE_LABELS = {
+  en: "🌹 en",
+  es: "🧉 es",
+  fr: "⚜️ fr",
+};
+
 let activeLocale = FALLBACK_LOCALE;
 
 function lookupKey(tree, key) {
@@ -70,6 +80,39 @@ export function setLocale(lang) {
   if (!locales[lang]) return false;
   activeLocale = lang;
   return true;
+}
+
+/**
+ * Mount a <select> language switcher into `container` (default:
+ * #langSwitcher). Changing it activates the locale, persists the choice
+ * to localStorage (so detection keeps it on next load) and re-applies
+ * translations to the live DOM. Returns the created element, or null when
+ * the container is absent (e.g. partial DOMs in component tests).
+ */
+export function mountLanguageSwitcher(container = document.getElementById("langSwitcher")) {
+  if (!container) return null;
+
+  const select = document.createElement("select");
+  select.id = "langSwitcherSelect";
+  select.setAttribute("aria-label", t("lang.label"));
+  for (const code of SUPPORTED_LOCALES) {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = LOCALE_LABELS[code] ?? code;
+    select.appendChild(option);
+  }
+  select.value = activeLocale;
+
+  select.addEventListener("change", () => {
+    if (!setLocale(select.value)) return;
+    localStorage.setItem(LANG_STORAGE_KEY, activeLocale);
+    applyLanguage();
+    // Keep the accessible label in the language the user now sees.
+    select.setAttribute("aria-label", t("lang.label"));
+  });
+
+  container.appendChild(select);
+  return select;
 }
 
 export function getLocale() {

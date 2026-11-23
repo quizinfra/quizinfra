@@ -1,0 +1,73 @@
+#!/bin/sh
+# Pre-commit hook: keeps the committed single-file artifact (docs/index.html)
+# in sync with its build inputs.
+#
+# Installed automatically by `npm ci` / `npm install` via the "prepare"
+# script in package.json (which sets core.hooksPath to this directory).
+# This is a DX speed bump, not a security boundary: CI's post-build
+# equality check on docs/ is the authority.
+
+set -e
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT" || exit 1
+
+# Build inputs: if none of these are staged, the committed artifact
+# cannot drift, so stay out of the way.
+BUILD_INPUT_RE='^index\.html$|^vite\.config\.js$|^package-lock\.json$|^src/|^public/'
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMRD)
+
+NEEDS_BUILD=0
+echo "$STAGED" | grep -Eq "$BUILD_INPUT_RE" && NEEDS_BUILD=1
+
+if [ "$NEEDS_BUILD" -eq 0 ]; then
+    exit 0
+fi
+
+# Fail if a build input is modified in the worktree but not staged: the
+# build below reads the worktree, so the artifact could match the
+# worktree and not the commit. Same strictness as the missing-npm case:
+# leniency here only defers an unavoidable CI failure.
+DIRTY=""
+while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    case "$f" in
+        index.html|vite.config.js|package-lock.json|src/*|public/*)
+            if ! git diff --quiet -- "$f" 2>/dev/null; then
+                DIRTY="$DIRTY $f"
+            fi
+            ;;
+    esac
+done <<EOF
+$STAGED
+EOF
+
+if [ -n "$DIRTY" ]; then
+    echo "pre-commit: these build inputs have unstaged changes:$DIRTY" >&2
+    echo "pre-commit: the artifact must be built from exactly what is committed. Stage them ('git add <file>') or stash them ('git stash'), then commit again." >&2
+    exit 1
+fi
+
+# Never silently skip the rebuild because tooling is missing.
+if ! command -v npm >/dev/null 2>&1; then
+    echo "pre-commit: build inputs are staged but npm is not on PATH; cannot rebuild docs/." >&2
+    exit 1
+fi
+if [ ! -d node_modules/vite ]; then
+    echo "pre-commit: node_modules is missing; run 'npm ci' first." >&2
+    exit 1
+fi
+
+echo "pre-commit: build inputs staged, rebuilding docs/ ..."
+if ! npm run build --silent; then
+    echo "pre-commit: build failed; commit aborted." >&2
+    exit 1
+fi
+
+if ! git diff --quiet -- docs/ 2>/dev/null || ! git ls-files --error-unmatch docs/index.html >/dev/null 2>&1; then
+    git add -- docs/
+    echo "pre-commit: refreshed docs/index.html and staged it for this commit."
+fi
+
+exit 0

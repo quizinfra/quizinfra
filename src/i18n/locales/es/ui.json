@@ -2,6 +2,9 @@
   "app": {
     "title": "Creador de exámenes imprimibles de opción múltiple"
   },
+  "lang": {
+    "label": "Idioma"
+  },
   "form": {
     "quiz_title": "Título del examen",
     "quiz_title_placeholder": "Introduce el título del examen",

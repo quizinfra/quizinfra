@@ -7,8 +7,16 @@ addEventListener('fetch', event => {
    * No external scripts (everything must come from the same origin).
    * Inline event‑handlers are allowed via 'unsafe-inline' because the
      app currently uses them; you can later refactor to remove them.
-   * style‑src also needs 'unsafe-inline' because the page contains
+   * style-src also needs 'unsafe-inline' because the page contains
      a <style> block.
+   *
+   * IMPORTANT: 'unsafe-inline' for script-src must stay. The deployable
+   * artifact (docs/index.html) is a single file whose entire JS bundle is
+   * an inline <script> produced by `npm run build`. A hash- or nonce-based
+   * CSP would have to be regenerated in lockstep with every build and
+   * deployed atomically with the artifact, which GitHub Pages + Worker
+   * cannot guarantee (two-artifact race). Inline event handlers plus the
+   * synced inline bundle all depend on this directive.
    ------------------------------------------------------------- */
 const CSP = [
   "default-src 'self'",

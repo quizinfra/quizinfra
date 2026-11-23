@@ -16,7 +16,7 @@ import {
   serializeQuiz,
   deserializeQuiz,
 } from "./quizData.js";
-import { t, getLocale, initI18n } from "./i18n/index.js";
+import { t, getLocale, initI18n, mountLanguageSwitcher } from "./i18n/index.js";
 
 let questions = [];
 
@@ -325,4 +325,7 @@ if (typeof document !== 'undefined') {
 
   // Detect the active locale and translate all static markup.
   initI18n();
+
+  // Language switcher (persists the user's choice for next load).
+  mountLanguageSwitcher();
 }

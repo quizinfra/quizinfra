@@ -2,6 +2,9 @@
   "app": {
     "title": "Multiple Choice Printable Quiz Maker"
   },
+  "lang": {
+    "label": "Language"
+  },
   "form": {
     "quiz_title": "Quiz Title",
     "quiz_title_placeholder": "Enter quiz title",
