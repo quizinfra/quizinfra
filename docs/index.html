@@ -292,6 +292,16 @@
 		activeLocale = lang;
 		return true;
 	}
+	var localeChangeListeners =  new Set();
+	function onLocaleChange(fn) {
+		localeChangeListeners.add(fn);
+		return () => {
+			localeChangeListeners.delete(fn);
+		};
+	}
+	function notifyLocaleChange() {
+		for (const fn of [...localeChangeListeners]) fn(activeLocale);
+	}
 	function mountLanguageSwitcher(container = document.getElementById("langSwitcher")) {
 		if (!container) return null;
 		const select = document.createElement("select");
@@ -309,6 +319,7 @@
 			localStorage.setItem(LANG_STORAGE_KEY, activeLocale);
 			applyLanguage();
 			select.setAttribute("aria-label", t(1));
+			notifyLocaleChange();
 		});
 		container.appendChild(select);
 		return select;
@@ -593,6 +604,9 @@
 		if (importBtn) importBtn.addEventListener("click", importQuizData);
 		initI18n();
 		mountLanguageSwitcher();
+		onLocaleChange(() => {
+			if (questions.length > 0) renderQuestions();
+		});
 	}
 })();</script>
   </body>

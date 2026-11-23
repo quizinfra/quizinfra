@@ -16,7 +16,7 @@ import {
   serializeQuiz,
   deserializeQuiz,
 } from "./quizData.js";
-import { t, getLocale, initI18n, mountLanguageSwitcher } from "./i18n/index.js";
+import { t, getLocale, initI18n, mountLanguageSwitcher, onLocaleChange } from "./i18n/index.js";
 
 let questions = [];
 
@@ -328,4 +328,13 @@ if (typeof document !== 'undefined') {
 
   // Language switcher (persists the user's choice for next load).
   mountLanguageSwitcher();
+
+  // Question forms are rendered at runtime from t() output, so they carry
+  // no data-i18n hooks for applyLanguage() to update. Re-render them from
+  // the fresh locale when the user switches languages. (Nothing to do
+  // while there are no questions; this also keeps the hook safe to
+  // register before #questionsContainer exists.)
+  onLocaleChange(() => {
+    if (questions.length > 0) renderQuestions();
+  });
 }

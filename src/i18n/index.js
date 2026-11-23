@@ -100,6 +100,34 @@ export function setLocale(lang) {
 }
 
 /**
+ * Listeners that re-render dynamically built views. applyLanguage()
+ * can only reach static markup (elements carrying data-i18n attributes);
+ * runtime-rendered DOM (the question forms) has no such attributes — the
+ * single-file build rewrites only static-HTML attributes and t("key")
+ * literals to positional indices, so attributes added at runtime would
+ * never be indexed and would render as raw key names. Those views
+ * therefore re-render themselves through onLocaleChange() instead.
+ */
+const localeChangeListeners = new Set();
+
+/**
+ * Register `fn` to run after the user changes the locale via the
+ * language switcher (once setLocale and applyLanguage are done).
+ * Returns an unsubscribe function.
+ */
+export function onLocaleChange(fn) {
+  localeChangeListeners.add(fn);
+  return () => {
+    localeChangeListeners.delete(fn);
+  };
+}
+
+function notifyLocaleChange() {
+  // Copy first so a listener may unsubscribe during iteration.
+  for (const fn of [...localeChangeListeners]) fn(activeLocale);
+}
+
+/**
  * Mount a <select> language switcher into `container` (default:
  * #langSwitcher). Changing it activates the locale, persists the choice
  * to localStorage (so detection keeps it on next load) and re-applies
@@ -126,6 +154,8 @@ export function mountLanguageSwitcher(container = document.getElementById("langS
     applyLanguage();
     // Keep the accessible label in the language the user now sees.
     select.setAttribute("aria-label", t("lang.label"));
+    // Let dynamically rendered views (questions) refresh themselves.
+    notifyLocaleChange();
   });
 
   container.appendChild(select);
