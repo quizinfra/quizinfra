@@ -8,7 +8,7 @@
   "form": {
     "quiz_title": "Titre du quiz",
     "quiz_title_placeholder": "Saisissez le titre du quiz",
-    "teacher_name": "Nom de l'enseignant",
+    "teacher_name": "Enseignant",
     "teacher_name_placeholder": "Saisissez le nom de l'enseignant",
     "instructions": "Consignes",
     "instructions_placeholder": "Saisissez les consignes",
@@ -37,6 +37,17 @@
     "text_label": "Texte de la question",
     "explanation_label": "Explication (facultatif)",
     "remove": "Supprimer la question"
+  },
+  "document": {
+    "title": "Document du quiz"
+  },
+  "answer_sheet": {
+    "page_title": "Grille de réponses",
+    "heading": "{{title}} - Grille de réponses"
+  },
+  "labels": {
+    "correct": "(Correct)",
+    "explanation": "Explication"
   },
   "toast": {
     "saved": "Progression enregistrée!",

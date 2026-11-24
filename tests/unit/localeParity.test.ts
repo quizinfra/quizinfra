@@ -7,17 +7,14 @@ import {
   getLocale,
 } from "../../src/i18n/index.js";
 
-import enUi from "../../src/i18n/locales/en/ui.json";
-import enDocs from "../../src/i18n/locales/en/docs.json";
-import esUi from "../../src/i18n/locales/es/ui.json";
-import esDocs from "../../src/i18n/locales/es/docs.json";
-import frUi from "../../src/i18n/locales/fr/ui.json";
-import frDocs from "../../src/i18n/locales/fr/docs.json";
+import enLocale from "../../src/i18n/locales/en.json";
+import esLocale from "../../src/i18n/locales/es.json";
+import frLocale from "../../src/i18n/locales/fr.json";
 
-const namespaceFiles: Record<string, Record<string, unknown>> = {
-  en: { ...enUi, ...enDocs },
-  es: { ...esUi, ...esDocs },
-  fr: { ...frUi, ...frDocs },
+const localeFiles: Record<string, Record<string, unknown>> = {
+  en: enLocale,
+  es: esLocale,
+  fr: frLocale,
 };
 
 /** Recursively collect all leaf keys of a nested message tree. */
@@ -30,7 +27,7 @@ function collectKeys(tree: unknown, prefix = ""): string[] {
   return typeof tree === "string" ? [prefix] : [];
 }
 
-const enKeys = collectKeys(namespaceFiles[FALLBACK_LOCALE]).sort();
+const enKeys = collectKeys(localeFiles[FALLBACK_LOCALE]).sort();
 
 describe("locale registry", () => {
   test("es and fr are registered as supported locales", () => {
@@ -39,7 +36,7 @@ describe("locale registry", () => {
 
   for (const locale of ["es", "fr"]) {
     test(`${locale} has exactly the same keys as the en source locale`, () => {
-      const keys = collectKeys(namespaceFiles[locale]).sort();
+      const keys = collectKeys(localeFiles[locale]).sort();
       const missing = enKeys.filter(k => !keys.includes(k));
       const extra = keys.filter(k => !enKeys.includes(k));
       // Report both directions explicitly for actionable failures.
@@ -55,9 +52,9 @@ describe("locale registry", () => {
       setLocale(locale);
       try {
         expect(t("actions.save_progress")).not.toBe(
-          enUi.actions.save_progress
+          enLocale.actions.save_progress
         );
-        expect(t("toast.saved")).not.toBe(enUi.toast.saved);
+        expect(t("toast.saved")).not.toBe(enLocale.toast.saved);
       } finally {
         setLocale(FALLBACK_LOCALE);
       }

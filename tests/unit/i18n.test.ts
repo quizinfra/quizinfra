@@ -7,9 +7,9 @@ import {
 } from "../../src/i18n/index.js";
 
 describe("t()", () => {
-  test("resolves ui and docs keys across namespaces", () => {
+  test("resolves nested keys", () => {
     expect(t("toast.loaded")).toBe("Progress loaded!");
-    expect(t("labels.teacher")).toBe("Teacher:");
+    expect(t("form.teacher_name")).toBe("Teacher");
   });
   test("interpolates {{params}}", () => {
     expect(t("question.heading", { n: 3 })).toBe("Question 3");

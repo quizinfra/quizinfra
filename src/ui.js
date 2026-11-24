@@ -137,14 +137,14 @@ export function previewQuiz() {
   const previewContent = document.getElementById("previewContent");
   previewContent.innerHTML = `
     <h3>${escapeHTML(document.getElementById("quizTitle").value)}</h3>
-    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
-    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p><strong>${t("form.teacher_name")}:</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("form.date")}:</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
     <p>${escapeHTML(document.getElementById("instructions").value)}</p>
     ${questions
       .map(
         (q, i) => `
       <div>
-        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <h4>${t("question.heading", { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>
         ${q.answers
           .map(
@@ -204,13 +204,13 @@ export function generateWordDocument() {
     <head><meta charset="UTF-8"><title>${t("document.title")}</title></head><body>`;
   docContent += `
     <h2>${escapeHTML(document.getElementById("quizTitle").value)}</h2>
-    <p><strong>${t("labels.teacher")}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
-    <p><strong>${t("labels.date")}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p><strong>${t("form.teacher_name")}:</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t("form.date")}:</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
     <p>${escapeHTML(document.getElementById("instructions").value)}</p>`;
   questions.forEach((q, i) => {
     docContent += `
       <div>
-        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <h4>${t("question.heading", { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>`;
     q.answers.forEach((a, idx) => {
       docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)}</p>`;
@@ -238,12 +238,12 @@ export function printAnswerSheet() {
   questions.forEach((q, i) => {
     content += `
       <div>
-        <h4>${t("labels.question", { n: i + 1 })}</h4>
+        <h4>${t("question.heading", { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>`;
     q.answers.forEach((a, idx) => {
       content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)} ${q.correctAnswers[idx] ? t("labels.correct") : ""}</p>`;
     });
-    if (q.explanation) content += `<p><strong>${t("labels.explanation")}</strong> ${escapeHTML(q.explanation)}</p>`;
+    if (q.explanation) content += `<p><strong>${t("labels.explanation")}:</strong> ${escapeHTML(q.explanation)}</p>`;
     content += `</div>`;
   });
   content += `</body></html>`;

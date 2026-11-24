@@ -9,12 +9,9 @@ import { join } from 'node:path';
 import { parse as parseJs } from 'acorn';
 
 import { buildFlatRegistry } from '../../build/i18n-indexed.js';
-import enUi from '../../src/i18n/locales/en/ui.json';
-import enDocs from '../../src/i18n/locales/en/docs.json';
-import esUi from '../../src/i18n/locales/es/ui.json';
-import esDocs from '../../src/i18n/locales/es/docs.json';
-import frUi from '../../src/i18n/locales/fr/ui.json';
-import frDocs from '../../src/i18n/locales/fr/docs.json';
+import enLocale from '../../src/i18n/locales/en.json';
+import esLocale from '../../src/i18n/locales/es.json';
+import frLocale from '../../src/i18n/locales/fr.json';
 
 const ARTIFACT_PATH = join(process.cwd(), 'docs', 'index.html');
 const html = existsSync(ARTIFACT_PATH) ? readFileSync(ARTIFACT_PATH, 'utf8') : null;
@@ -174,9 +171,9 @@ describe('single-file artifact (docs/index.html)', () => {
   }
 
   const realRegistry = {
-    en: { ui: enUi, docs: enDocs },
-    es: { ui: esUi, docs: esDocs },
-    fr: { ui: frUi, docs: frDocs },
+    en: enLocale,
+    es: esLocale,
+    fr: frLocale,
   };
 
   test('locales ship as flat positional arrays matching the src files', () => {
@@ -221,7 +218,11 @@ describe('single-file artifact (docs/index.html)', () => {
   });
 
   test('every data-i18n attribute is an index resolving to its English text', () => {
-    const { flatLocales } = buildFlatRegistry(realRegistry);
+    // buildFlatRegistry lives in untyped build JS; local shape for the
+    // assertions below.
+    const { flatLocales } = buildFlatRegistry(realRegistry) as {
+      flatLocales: Record<string, string[]>;
+    };
     const doc = parse();
     const attributed = [
       ...Array.from(doc.querySelectorAll('[data-i18n]')),
@@ -244,9 +245,9 @@ describe('single-file artifact (docs/index.html)', () => {
     // The 100%-elimination guard: every leaf path (quoted, as it could
     // only ever appear as a JS string or HTML attribute value) must be
     // gone from the entire file.
-    for (const slot of keyOrder) {
-      expect(html, `key "${slot.path}" survived indexing`).not.toContain(
-        `"${slot.path}"`
+    for (const path of keyOrder) {
+      expect(html, `key "${path}" survived indexing`).not.toContain(
+        `"${path}"`
       );
     }
   });

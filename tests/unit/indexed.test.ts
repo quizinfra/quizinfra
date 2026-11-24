@@ -11,34 +11,42 @@ import {
   createIndexedLocalesPlugins,
 } from "../../build/i18n-indexed.js";
 
-import enUi from "../../src/i18n/locales/en/ui.json";
-import enDocs from "../../src/i18n/locales/en/docs.json";
-import esUi from "../../src/i18n/locales/es/ui.json";
-import esDocs from "../../src/i18n/locales/es/docs.json";
-import frUi from "../../src/i18n/locales/fr/ui.json";
-import frDocs from "../../src/i18n/locales/fr/docs.json";
+import enLocale from "../../src/i18n/locales/en.json";
+import esLocale from "../../src/i18n/locales/es.json";
+import frLocale from "../../src/i18n/locales/fr.json";
 
 // The registry exactly as src/i18n/index.js assembles it.
 const realRegistry = {
-  en: { ui: enUi, docs: enDocs },
-  es: { ui: esUi, docs: esDocs },
-  fr: { ui: frUi, docs: frDocs },
+  en: enLocale,
+  es: esLocale,
+  fr: frLocale,
 };
 
-describe("buildFlatRegistry (real locale files)", () => {
-  const { keyOrder, keyMap, flatLocales } = buildFlatRegistry(realRegistry);
+/** Look up a dot-path in a nested message tree. */
+function getPath(tree: unknown, path: string): unknown {
+  return path
+    .split(".")
+    .reduce(
+      (node: any, part: string) => (node == null ? undefined : node[part]),
+      tree
+    );
+}
 
-  test("indexes every ui and docs leaf in source order", () => {
-    expect(keyOrder[0]).toEqual({ namespace: "ui", path: "app.title" });
+describe("buildFlatRegistry (real locale files)", () => {
+  // buildFlatRegistry lives in untyped build JS; give its result a local
+  // shape so the assertions below type-check.
+  const { keyOrder, keyMap, flatLocales } = buildFlatRegistry(realRegistry) as {
+    keyOrder: string[];
+    keyMap: Record<string, number>;
+    flatLocales: Record<string, string[]>;
+  };
+
+  test("indexes every leaf in source order", () => {
+    expect(keyOrder[0]).toBe("app.title");
     // Every leaf of every locale file has a slot.
-    const paths = new Set(keyOrder.map((slot: { path: string }) => slot.path));
-    for (const [tree, namespace] of [
-      [enUi, "ui"],
-      [enDocs, "docs"],
-    ] as const) {
-      for (const path of collectLeafPaths(tree)) {
-        expect(paths.has(path), `${namespace}.${path} missing`).toBe(true);
-      }
+    const paths = new Set(keyOrder);
+    for (const path of collectLeafPaths(enLocale)) {
+      expect(paths.has(path), `${path} missing`).toBe(true);
     }
   });
 
@@ -48,11 +56,11 @@ describe("buildFlatRegistry (real locale files)", () => {
     expect(flatLocales.fr.length).toBe(keyOrder.length);
 
     // Spot-check the same index resolves in every locale, including a
-    // dotted (nested) key and a docs-only key.
+    // dotted (nested) key and a key shared by the form and the documents.
     for (const [path, expected] of [
       ["app.title", ["Multiple Choice Printable Quiz Maker", "Creador de exámenes imprimibles de opción múltiple", "Créateur de quiz imprimibles à choix multiples"]],
       ["question.text_label", ["Question Text", "Texto de la pregunta", "Texte de la question"]],
-      ["labels.teacher", ["Teacher:", "Docente:", "Enseignant:"]],
+      ["form.teacher_name", ["Teacher", "Docente", "Enseignant"]],
     ] as const) {
       const index = keyMap[path as string];
       expect(typeof index).toBe("number");
@@ -63,37 +71,19 @@ describe("buildFlatRegistry (real locale files)", () => {
 
     // The es/fr arrays must be exactly the locale files flattened into
     // the reference (en) order — the same data the runtime resolves.
-    const expectedFlat = (ui: unknown, docs: unknown) =>
-      keyOrder.map((slot: { namespace: string; path: string }) =>
-        slot.path
-          .split(".")
-          .reduce(
-            (node: any, part: string) => (node == null ? undefined : node[part]),
-            slot.namespace === "ui" ? ui : docs
-          )
-      );
-    expect(flatLocales.en).toEqual(expectedFlat(enUi, enDocs));
-    expect(flatLocales.es).toEqual(expectedFlat(esUi, esDocs));
-    expect(flatLocales.fr).toEqual(expectedFlat(frUi, frDocs));
+    const expectedFlat = (tree: unknown) =>
+      keyOrder.map((path: string) => getPath(tree, path));
+    expect(flatLocales.en).toEqual(expectedFlat(enLocale));
+    expect(flatLocales.es).toEqual(expectedFlat(esLocale));
+    expect(flatLocales.fr).toEqual(expectedFlat(frLocale));
   });
 
-  test("ui-before-docs precedence: first occurrence wins in keyMap", () => {
-    // The key map uses bare leaf paths; with no collisions between ui and
-    // docs today, every ui key must map to its ui slot.
-    for (const path of collectLeafPaths(enUi)) {
-      const index = keyMap[path];
-      expect(
-        keyOrder[index].path === path && keyOrder[index].namespace === "ui",
-        `keyMap["${path}"] should point at the ui namespace`
-      ).toBe(true);
+  test("keyMap maps every leaf path to its slot", () => {
+    for (const [index, path] of keyOrder.entries()) {
+      expect(keyMap[path], `keyMap["${path}"] should point at slot ${index}`).toBe(
+        index
+      );
     }
-    // Mirror the runtime's ui-before-docs precedence if a collision is
-    // ever introduced: a duplicated leaf path maps to the ui occurrence.
-    const collided = buildFlatRegistry({
-      en: { ui: { dup: "from-ui" }, docs: { dup: "from-docs" } },
-    });
-    expect(collided.keyMap.dup).toBe(0);
-    expect(collided.flatLocales.en).toEqual(["from-ui", "from-docs"]);
   });
 
   test("is deterministic", () => {
@@ -102,32 +92,34 @@ describe("buildFlatRegistry (real locale files)", () => {
     );
   });
 
-  test("hard-fails on parity drift (missing leaf, extra leaf, missing namespace)", () => {
+  test("hard-fails on parity drift (missing leaf, extra leaf, missing group)", () => {
     const clone = () => structuredClone(realRegistry);
 
     const missing = clone();
-    delete (missing.es as any).ui.form.quiz_title;
+    delete (missing.es as any).form.quiz_title;
     expect(() => buildFlatRegistry(missing)).toThrowError(
       /parity failure in locale "es".*missing \[form\.quiz_title\]/s
     );
 
     const extra = clone();
-    (extra.fr as any).docs.labels.oops = "oops";
+    (extra.fr as any).labels.oops = "oops";
     expect(() => buildFlatRegistry(extra)).toThrowError(
       /parity failure in locale "fr".*unexpected \[labels\.oops\]/s
     );
 
-    const missingNamespace = clone();
-    delete (missingNamespace.es as any).docs;
-    expect(() => buildFlatRegistry(missingNamespace)).toThrowError(
-      /locale "es" has namespaces \[ui\]/
+    // Deleting a whole nested group is just the multi-leaf case of the
+    // same parity failure.
+    const missingGroup = clone();
+    delete (missingGroup.es as any).form;
+    expect(() => buildFlatRegistry(missingGroup)).toThrowError(
+      /parity failure in locale "es".*missing \[form\.date[^\]]*\]/s
     );
   });
 
   test("hard-fails on non-string leaves", () => {
     for (const bad of [3, ["a"], null] as const) {
       const broken = structuredClone(realRegistry);
-      (broken.es as any).ui.app.title = bad;
+      (broken.es as any).app.title = bad;
       expect(() => buildFlatRegistry(broken)).toThrowError(
         /must contain only strings and objects/
       );
@@ -137,10 +129,10 @@ describe("buildFlatRegistry (real locale files)", () => {
 
 // A synthetic chunk that mirrors how the real bundle nests everything in an
 // IIFE, including a dual-mode t() that EXACTLY matches src/i18n/index.js
-// (array-first indexed lookups, then dot-path walks over ui/docs, falling
-// back to en, then to the key itself). If these helpers ever diverge from
-// the runtime, the before/after equivalence test below stops meaning
-// anything — keep them in sync.
+// (array-first indexed lookups, then dot-path walks over the locale tree,
+// falling back to en, then to the key itself). If these helpers ever
+// diverge from the runtime, the before/after equivalence test below stops
+// meaning anything — keep them in sync.
 const RUNTIME_HELPERS = `
   function lookupKey(tree, key) {
     let node = tree;
@@ -160,11 +152,9 @@ const RUNTIME_HELPERS = `
     const fallback = locales["en"];
     return (
       lookupIndexed(active, key) ??
-      lookupKey(active?.ui, key) ??
-      lookupKey(active?.docs, key) ??
+      lookupKey(active, key) ??
       lookupIndexed(fallback, key) ??
-      lookupKey(fallback.ui, key) ??
-      lookupKey(fallback.docs, key) ??
+      lookupKey(fallback, key) ??
       key
     );
   }
@@ -188,9 +178,9 @@ function syntheticChunk(registry: unknown): string {
 }
 
 const syntheticRegistry = {
-  en: { ui: { greet: "hello", nested: { deep: "yes" } }, docs: { tip: "hint" } },
-  es: { ui: { greet: "hola", nested: { deep: "sí" } }, docs: { tip: "pista" } },
-  fr: { ui: { greet: "bonjour", nested: { deep: "oui" } }, docs: { tip: "indice" } },
+  en: { greet: "hello", nested: { deep: "yes" }, tip: "hint" },
+  es: { greet: "hola", nested: { deep: "sí" }, tip: "pista" },
+  fr: { greet: "bonjour", nested: { deep: "oui" }, tip: "indice" },
 };
 
 describe("indexedifyLocalesChunk (synthetic chunk)", () => {
@@ -198,7 +188,7 @@ describe("indexedifyLocalesChunk (synthetic chunk)", () => {
     const before = syntheticChunk(syntheticRegistry);
     const { code, keyMap, flatLocales } = indexedifyLocalesChunk(before);
 
-    // Positional indices, ui leaves before docs leaves.
+    // Positional indices, leaves in the reference locale's source order.
     expect(keyMap).toEqual({ greet: 0, "nested.deep": 1, tip: 2 });
     expect(flatLocales).toEqual({
       en: ["hello", "yes", "hint"],
@@ -217,7 +207,7 @@ describe("indexedifyLocalesChunk (synthetic chunk)", () => {
     expect(code).not.toContain('t("tip")');
 
     // The whole point: executing before and after produces identical
-    // output for every locale, including the nested docs path and the
+    // output for every locale, including the nested path and the
     // template-literal call.
     const runBefore = new Function(`return ${before}`)();
     const runAfter = new Function(`return ${code}`)();
@@ -244,7 +234,7 @@ describe("indexedifyLocalesChunk (synthetic chunk)", () => {
 
   test("refuses t() keys absent from the locale files (names them)", () => {
     const chunk = `(function () {
-  var locales = {"en":{"ui":{"greet":"hello"},"docs":{}},"es":{"ui":{"greet":"hola"},"docs":{}},"fr":{"ui":{"greet":"bonjour"},"docs":{}}};
+  var locales = {"en":{"greet":"hello"},"es":{"greet":"hola"},"fr":{"greet":"bonjour"}};
   ${RUNTIME_HELPERS}
   return t("nope.does_not_exist");
 })()`;
@@ -255,8 +245,8 @@ describe("indexedifyLocalesChunk (synthetic chunk)", () => {
 
   test("requires exactly one locales object literal", () => {
     const two = `(function () {
-  (function () { var locales = {"en":{"ui":{}}}; return locales; })();
-  (function () { var locales = {"en":{"ui":{}}}; return locales; })();
+  (function () { var locales = {"en":{}}; return locales; })();
+  (function () { var locales = {"en":{}}; return locales; })();
 })()`;
     // Two declarators in separate scopes must still count as ambiguous.
     expect(() => indexedifyLocalesChunk(two)).toThrowError(/found 2/);
@@ -267,10 +257,10 @@ describe("indexedifyLocalesChunk (synthetic chunk)", () => {
 
   test("rejects non-literal registry shapes", () => {
     const bad = `(function () {
-  var locales = {"en":{"ui":{"greet": 3}}};
+  var locales = {"en":{"greet": 3}};
 })()`;
     expect(() => indexedifyLocalesChunk(bad)).toThrowError(
-      /locales\.en\.ui\.greet.*found Literal 3/s
+      /locales\.en\.greet.*found Literal 3/s
     );
   });
 });

@@ -1,9 +1,9 @@
 // build/i18n-indexed.js
 // Build-time transform: fully index the i18n payload. Each locale's
-// nested message trees are replaced by ONE flat string array; every leaf
+// nested message tree is replaced by ONE flat string array; every leaf
 // key gets a positional index (assigned in the reference locale's
-// source order: ui namespace first, then docs); and every lookup site
-// is rewritten from the key string to its index:
+// source order); and every lookup site is rewritten from the key string
+// to its index:
 //
 //   t("toast.saved")        ->  t(38)
 //   data-i18n="form.date"   ->  data-i18n="13"
@@ -19,8 +19,8 @@
 // mode, src/dev/tests), so both worlds share one runtime.
 //
 // Hard build failures (never silent):
-// - locale parity: every locale must expose the same namespaces and the
-//   same leaf-path sets as the first locale;
+// - locale parity: every locale must expose the same leaf-path set as
+//   the first locale;
 // - leaves must be strings or nested objects (arrays/numbers/null are
 //   ambiguous against positional indexing);
 // - a t("key") literal call whose key maps nowhere;
@@ -65,13 +65,11 @@ export function collectLeafPaths(tree, prefix = "") {
 }
 
 /**
- * Flatten { locale: { namespace: tree } } into:
- * - keyOrder: [{ namespace, path }] for every (namespace, leaf) slot,
- *   in the first locale's source order (namespaces as declared, leaves
- *   in object order);
- * - keyMap: { "dot.path" -> index } using the bare leaf path as used by
- *   t() call sites and data-i18n attributes; the first occurrence wins,
- *   mirroring the runtime's ui-before-docs precedence;
+ * Flatten { locale: tree } into:
+ * - keyOrder: ["dot.path", ...] for every leaf, in the first locale's
+ *   source order (leaves in object order);
+ * - keyMap: { "dot.path" -> index }, the same paths used by t() call
+ *   sites and data-i18n attributes;
  * - flatLocales: { locale: [string, ...] } positionally aligned.
  */
 export function buildFlatRegistry(registry) {
@@ -80,64 +78,41 @@ export function buildFlatRegistry(registry) {
     throw new Error("indexed-locales: locales registry is empty");
   }
   const reference = registry[localeOrder[0]];
-  const namespaceOrder = Object.keys(reference);
-  if (namespaceOrder.length === 0) {
-    throw new Error("indexed-locales: locales registry has no namespaces");
+  const keyOrder = collectLeafPaths(reference);
+  if (keyOrder.length === 0) {
+    throw new Error("indexed-locales: reference locale has no leaves");
   }
+
+  // Parity: every locale must carry exactly the reference's leaf paths
+  // (reported both directions for actionable failures).
+  const expected = [...keyOrder].sort();
   for (const code of localeOrder.slice(1)) {
-    const namespaces = Object.keys(registry[code]);
-    if (namespaces.join("\u0000") !== namespaceOrder.join("\u0000")) {
+    const actual = [...collectLeafPaths(registry[code])].sort();
+    const missing = expected.filter((path) => !actual.includes(path));
+    const extra = actual.filter((path) => !expected.includes(path));
+    if (missing.length > 0 || extra.length > 0) {
       throw new Error(
-        `indexed-locales: locale "${code}" has namespaces [${namespaces.join(", ")}] but ` +
-          `"${localeOrder[0]}" has [${namespaceOrder.join(", ")}]`
+        `indexed-locales: parity failure in locale "${code}": ` +
+          `missing [${missing.join(", ")}] unexpected [${extra.join(", ")}]`
       );
     }
   }
 
-  const keyOrder = [];
-  for (const namespace of namespaceOrder) {
-    for (const path of collectLeafPaths(reference[namespace])) {
-      keyOrder.push({ namespace, path });
-    }
-  }
-
-  // Parity: every locale must carry exactly the reference's leaf paths,
-  // per namespace (reported both directions for actionable failures).
-  for (const namespace of namespaceOrder) {
-    const expected = keyOrder
-      .filter((slot) => slot.namespace === namespace)
-      .map((slot) => slot.path)
-      .sort();
-    for (const code of localeOrder) {
-      const actual = [...collectLeafPaths(registry[code][namespace])].sort();
-      const missing = expected.filter((path) => !actual.includes(path));
-      const extra = actual.filter((path) => !expected.includes(path));
-      if (missing.length > 0 || extra.length > 0) {
-        throw new Error(
-          `indexed-locales: parity failure in locale "${code}" namespace "${namespace}": ` +
-            `missing [${missing.join(", ")}] unexpected [${extra.join(", ")}]`
-        );
-      }
-    }
-  }
-
   const keyMap = {};
-  keyOrder.forEach((slot, index) => {
-    if (mapGet(keyMap, slot.path) === undefined) keyMap[slot.path] = index;
+  keyOrder.forEach((path, index) => {
+    if (mapGet(keyMap, path) === undefined) keyMap[path] = index;
   });
 
   const flatLocales = {};
   for (const code of localeOrder) {
-    flatLocales[code] = keyOrder.map((slot) => {
-      let node = registry[code][slot.namespace];
-      for (const part of slot.path.split(".")) {
+    flatLocales[code] = keyOrder.map((path) => {
+      let node = registry[code];
+      for (const part of path.split(".")) {
         node = node == null ? undefined : node[part];
       }
       if (typeof node !== "string") {
         // Unreachable after the parity pass; guards against refactors.
-        throw new Error(
-          `indexed-locales: leaf "${slot.namespace}.${slot.path}" is not a string`
-        );
+        throw new Error(`indexed-locales: leaf "${path}" is not a string`);
       }
       return node;
     });

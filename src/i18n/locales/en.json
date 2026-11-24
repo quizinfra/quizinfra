@@ -8,7 +8,7 @@
   "form": {
     "quiz_title": "Quiz Title",
     "quiz_title_placeholder": "Enter quiz title",
-    "teacher_name": "Teacher's Name",
+    "teacher_name": "Teacher",
     "teacher_name_placeholder": "Enter teacher's name",
     "instructions": "Instructions",
     "instructions_placeholder": "Enter instructions",
@@ -37,6 +37,17 @@
     "text_label": "Question Text",
     "explanation_label": "Explanation (optional)",
     "remove": "Remove Question"
+  },
+  "document": {
+    "title": "Quiz Document"
+  },
+  "answer_sheet": {
+    "page_title": "Answer Sheet",
+    "heading": "{{title}} - Answer Sheet"
+  },
+  "labels": {
+    "correct": "(Correct)",
+    "explanation": "Explanation"
   },
   "toast": {
     "saved": "Progress saved!",

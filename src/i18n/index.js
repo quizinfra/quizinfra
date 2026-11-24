@@ -1,22 +1,19 @@
 // src/i18n/index.js
 // Minimal frameworkless i18n runtime: locale registry, t(), and wiring
 // between detection (detect.js) and the DOM. Keys are dot-paths resolved
-// across all namespaces of the active locale, then the fallback locale,
-// then the key itself (visible keys beat blank strings).
+// in the active locale's message tree, then the fallback locale's, then
+// the key itself (visible keys beat blank strings).
 
 import { detectLanguage } from "./detect.js";
-import enUi from "./locales/en/ui.json";
-import enDocs from "./locales/en/docs.json";
-import esUi from "./locales/es/ui.json";
-import esDocs from "./locales/es/docs.json";
-import frUi from "./locales/fr/ui.json";
-import frDocs from "./locales/fr/docs.json";
+import enLocale from "./locales/en.json";
+import esLocale from "./locales/es.json";
+import frLocale from "./locales/fr.json";
 
-/** Registry: locale code -> namespace -> nested message tree. */
+/** Registry: locale code -> nested message tree (one file per locale). */
 const locales = {
-  en: { ui: enUi, docs: enDocs },
-  es: { ui: esUi, docs: esDocs },
-  fr: { ui: frUi, docs: frDocs },
+  en: enLocale,
+  es: esLocale,
+  fr: frLocale,
 };
 
 export const SUPPORTED_LOCALES = Object.keys(locales);
@@ -78,11 +75,9 @@ export function t(key, params) {
   const fallback = locales[FALLBACK_LOCALE];
   const template =
     lookupIndexed(active, key) ??
-    lookupKey(active?.ui, key) ??
-    lookupKey(active?.docs, key) ??
+    lookupKey(active, key) ??
     lookupIndexed(fallback, key) ??
-    lookupKey(fallback.ui, key) ??
-    lookupKey(fallback.docs, key) ??
+    lookupKey(fallback, key) ??
     key;
   if (!params) return template;
   return template.replace(/\{\{(\w+)\}\}/g, (match, name) =>

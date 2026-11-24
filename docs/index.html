@@ -52,7 +52,7 @@
                                 <input id="quizTitle" placeholder="Enter quiz title" data-i18n-placeholder="3" type="text">
                             </div>
                             <div class="form-group">
-                                <label for="teacherName" data-i18n="4">Teacher's Name</label>
+                                <label for="teacherName" data-i18n="4">Teacher</label>
                                 <input id="teacherName" placeholder="Enter teacher's name" data-i18n-placeholder="5" type="text">
                             </div>
                             <div class="form-group">
@@ -128,7 +128,7 @@
 			"Language",
 			"Quiz Title",
 			"Enter quiz title",
-			"Teacher's Name",
+			"Teacher",
 			"Enter teacher's name",
 			"Instructions",
 			"Enter instructions",
@@ -151,28 +151,25 @@
 			"Question Text",
 			"Explanation (optional)",
 			"Remove Question",
+			"Quiz Document",
+			"Answer Sheet",
+			"{{title}} - Answer Sheet",
+			"(Correct)",
+			"Explanation",
 			"Progress saved!",
 			"Progress loaded!",
 			"No saved progress found.",
 			"Quiz cleared!",
 			"No file selected.",
 			"File imported",
-			"Failed to import quiz data.",
-			"Quiz Document",
-			"Answer Sheet",
-			"{{title}} - Answer Sheet",
-			"Teacher:",
-			"Date:",
-			"Question {{n}}",
-			"(Correct)",
-			"Explanation:"
+			"Failed to import quiz data."
 		],
 		"es": [
 			"Creador de exámenes imprimibles de opción múltiple",
 			"Idioma",
 			"Título del examen",
 			"Introduce el título del examen",
-			"Nombre del docente",
+			"Docente",
 			"Introduce el nombre del docente",
 			"Instrucciones",
 			"Introduce las instrucciones",
@@ -195,28 +192,25 @@
 			"Texto de la pregunta",
 			"Explicación (opcional)",
 			"Quitar pregunta",
+			"Documento de examen",
+			"Hoja de respuestas",
+			"{{title}} - Hoja de respuestas",
+			"(Correcto)",
+			"Explicación",
 			"¡Progreso guardado!",
 			"¡Progreso cargado!",
 			"No se encontró ningún progreso guardado.",
 			"¡Examen vaciado!",
 			"Ningún archivo seleccionado.",
 			"Archivo importado",
-			"No se pudieron importar los datos del examen.",
-			"Documento de examen",
-			"Hoja de respuestas",
-			"{{title}} - Hoja de respuestas",
-			"Docente:",
-			"Fecha:",
-			"Pregunta {{n}}",
-			"(Correcto)",
-			"Explicación:"
+			"No se pudieron importar los datos del examen."
 		],
 		"fr": [
 			"Créateur de quiz imprimibles à choix multiples",
 			"Langue",
 			"Titre du quiz",
 			"Saisissez le titre du quiz",
-			"Nom de l'enseignant",
+			"Enseignant",
 			"Saisissez le nom de l'enseignant",
 			"Consignes",
 			"Saisissez les consignes",
@@ -239,21 +233,18 @@
 			"Texte de la question",
 			"Explication (facultatif)",
 			"Supprimer la question",
+			"Document du quiz",
+			"Grille de réponses",
+			"{{title}} - Grille de réponses",
+			"(Correct)",
+			"Explication",
 			"Progression enregistrée!",
 			"Progression chargée!",
 			"Aucune progression enregistrée trouvée.",
 			"Quiz effacé!",
 			"Aucun fichier sélectionné.",
 			"Fichier importé",
-			"Échec de l'importation des données du quiz.",
-			"Document du quiz",
-			"Grille de réponses",
-			"{{title}} - Grille de réponses",
-			"Enseignant:",
-			"Date:",
-			"Question {{n}}",
-			"(Correct)",
-			"Explication:"
+			"Échec de l'importation des données du quiz."
 		]
 	};
 	var SUPPORTED_LOCALES = Object.keys(locales);
@@ -283,7 +274,7 @@
 	function t(key, params) {
 		const active = locales[activeLocale];
 		const fallback = locales["en"];
-		const template = lookupIndexed(active, key) ?? lookupKey(active?.ui, key) ?? lookupKey(active?.docs, key) ?? lookupIndexed(fallback, key) ?? lookupKey(fallback.ui, key) ?? lookupKey(fallback.docs, key) ?? key;
+		const template = lookupIndexed(active, key) ?? lookupKey(active, key) ?? lookupIndexed(fallback, key) ?? lookupKey(fallback, key) ?? key;
 		if (!params) return template;
 		return template.replace(/\{\{(\w+)\}\}/g, (match, name) => Object.prototype.hasOwnProperty.call(params, name) ? escapeHTML$1(params[name]) : match);
 	}
@@ -428,26 +419,26 @@
 	function saveProgress() {
 		const quizData = getQuizData();
 		localStorage.setItem("quizData", serializeQuiz(quizData));
-		notify(t(27));
+		notify(t(32));
 	}
 	function loadProgress() {
 		const saved = localStorage.getItem("quizData");
 		if (saved) {
 			setQuizData(deserializeQuiz(saved));
 			renderQuestions();
-			notify(t(28));
-		} else notify(t(29));
+			notify(t(33));
+		} else notify(t(34));
 	}
 	function previewQuiz() {
 		const previewContent = document.getElementById("previewContent");
 		previewContent.innerHTML = `
     <h3>${escapeHTML(document.getElementById("quizTitle").value)}</h3>
-    <p><strong>${t(37)}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
-    <p><strong>${t(38)}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p><strong>${t(4)}:</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t(8)}:</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
     <p>${escapeHTML(document.getElementById("instructions").value)}</p>
     ${questions.map((q, i) => `
       <div>
-        <h4>${t(39, { n: i + 1 })}</h4>
+        <h4>${t(23, { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>
         ${q.answers.map((a, j) => `<p style='margin-left:20px;'>${String.fromCharCode(65 + j)}. ${escapeHTML(a)}</p>`).join("")}
       </div>`).join("")}
@@ -472,7 +463,7 @@
 	function handleFileImport(event) {
 		const file = event.target.files[0];
 		if (!file) {
-			notify(t(31));
+			notify(t(36));
 			return;
 		}
 		const reader = new FileReader();
@@ -480,9 +471,9 @@
 			try {
 				setQuizData(deserializeQuiz(e.target.result));
 				renderQuestions();
-				notify(t(32));
+				notify(t(37));
 			} catch {
-				notify(t(33));
+				notify(t(38));
 			}
 			event.target.value = "";
 		};
@@ -492,16 +483,16 @@
 		let docContent = `
     <!DOCTYPE html>
     <html lang="${escapeHTML(getLocale())}">
-    <head><meta charset="UTF-8"><title>${t(34)}</title></head><body>`;
+    <head><meta charset="UTF-8"><title>${t(27)}</title></head><body>`;
 		docContent += `
     <h2>${escapeHTML(document.getElementById("quizTitle").value)}</h2>
-    <p><strong>${t(37)}</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
-    <p><strong>${t(38)}</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
+    <p><strong>${t(4)}:</strong> ${escapeHTML(document.getElementById("teacherName").value)}</p>
+    <p><strong>${t(8)}:</strong> ${escapeHTML(document.getElementById("quizDate").value)}</p>
     <p>${escapeHTML(document.getElementById("instructions").value)}</p>`;
 		questions.forEach((q, i) => {
 			docContent += `
       <div>
-        <h4>${t(39, { n: i + 1 })}</h4>
+        <h4>${t(23, { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>`;
 			q.answers.forEach((a, idx) => {
 				docContent += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)}</p>`;
@@ -522,18 +513,18 @@
 		let content = `
     <!DOCTYPE html>
     <html lang="${escapeHTML(getLocale())}">
-    <head><meta charset="UTF-8"><title>${t(35)}</title></head><body>`;
+    <head><meta charset="UTF-8"><title>${t(28)}</title></head><body>`;
 		content += `
-    <h2>${t(36, { title: document.getElementById("quizTitle").value })}</h2>`;
+    <h2>${t(29, { title: document.getElementById("quizTitle").value })}</h2>`;
 		questions.forEach((q, i) => {
 			content += `
       <div>
-        <h4>${t(39, { n: i + 1 })}</h4>
+        <h4>${t(23, { n: i + 1 })}</h4>
         <p>${escapeHTML(q.text)}</p>`;
 			q.answers.forEach((a, idx) => {
-				content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)} ${q.correctAnswers[idx] ? t(40) : ""}</p>`;
+				content += `<p style='margin-left:20px;'>${String.fromCharCode(65 + idx)}. ${escapeHTML(a)} ${q.correctAnswers[idx] ? t(30) : ""}</p>`;
 			});
-			if (q.explanation) content += `<p><strong>${t(41)}</strong> ${escapeHTML(q.explanation)}</p>`;
+			if (q.explanation) content += `<p><strong>${t(31)}:</strong> ${escapeHTML(q.explanation)}</p>`;
 			content += `</div>`;
 		});
 		content += `</body></html>`;
@@ -577,7 +568,7 @@
 		document.getElementById("instructions").value = "";
 		document.getElementById("quizDate").value = "";
 		renderQuestions();
-		notify(t(30));
+		notify(t(35));
 	}
 	if (typeof window !== "undefined") Object.assign(window, {
 		addQuestion,

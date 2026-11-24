@@ -8,7 +8,7 @@
   "form": {
     "quiz_title": "Título del examen",
     "quiz_title_placeholder": "Introduce el título del examen",
-    "teacher_name": "Nombre del docente",
+    "teacher_name": "Docente",
     "teacher_name_placeholder": "Introduce el nombre del docente",
     "instructions": "Instrucciones",
     "instructions_placeholder": "Introduce las instrucciones",
@@ -37,6 +37,17 @@
     "text_label": "Texto de la pregunta",
     "explanation_label": "Explicación (opcional)",
     "remove": "Quitar pregunta"
+  },
+  "document": {
+    "title": "Documento de examen"
+  },
+  "answer_sheet": {
+    "page_title": "Hoja de respuestas",
+    "heading": "{{title}} - Hoja de respuestas"
+  },
+  "labels": {
+    "correct": "(Correcto)",
+    "explanation": "Explicación"
   },
   "toast": {
     "saved": "¡Progreso guardado!",
