@@ -1,7 +1,8 @@
 // Smoke test for the committed deployable artifact (docs/index.html).
 // CI additionally verifies the artifact equals a fresh `npm run build`;
 // these assertions catch a structurally broken artifact (external refs,
-// deferred module scripts, missing payloads) even before that.
+// deferred module scripts, missing payloads, disallowed external
+// dependencies) even before that.
 
 import { describe, expect, test } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
@@ -47,16 +48,41 @@ describe('single-file artifact (docs/index.html)', () => {
     );
   });
 
-  test('has no external resource references at all', () => {
+  // The self-containment contract is about *assets*, not navigation: the
+  // artifact may contain <a> links that navigate away (footer links to the
+  // repo/issue tracker are intentional page loads), but it must fetch
+  // nothing to render: no external scripts, stylesheets, images, frames,
+  // fonts, or tracked URLs.
+  test('fetches no external assets; only navigation links are external', () => {
     const doc = parse();
-    expect(doc.querySelectorAll('link[href]').length).toBe(0);
-    expect(doc.querySelectorAll('img[src]').length).toBe(0);
-    expect(doc.querySelectorAll('iframe[src]').length).toBe(0);
+    // Asset-loading elements must not reference anything at all; the
+    // <script> assertions above already cover script[src].
+    for (const tag of ['link', 'img', 'iframe', 'audio', 'video', 'embed', 'source', 'track']) {
+      expect(
+        doc.getElementsByTagName(tag).length,
+        `no <${tag}> elements: the artifact loads no external assets`
+      ).toBe(0);
+    }
     for (const el of Array.from(doc.querySelectorAll('[src], [href]'))) {
+      if (el.tagName === 'A') continue; // navigation links, checked below
       const value = el.getAttribute('src') ?? el.getAttribute('href') ?? '';
       expect(value, `unexpected external reference: ${value}`).toMatch(
         /^(#:|#\w|data:)/
       );
+    }
+    // The only external URLs allowed are <a> navigation links, and they
+    // must be absolute http(s) URLs (anything else — mailto:, javascript:,
+    // protocol-relative //host, data:, root-relative — is not a footer).
+    const anchors = Array.from(doc.querySelectorAll('a'));
+    expect(anchors.length).toBeGreaterThanOrEqual(2);
+    for (const anchor of anchors) {
+      expect(
+        anchor.getAttribute('href'),
+        'navigation links must be absolute http(s) URLs'
+      ).toMatch(/^https?:\/\//);
+      // A target to another context would be a dependency the artifact
+      // tests never see (jsdom never follows links).
+      expect(anchor.getAttribute('target'), 'links open in the same tab').toBeNull();
     }
   });
 

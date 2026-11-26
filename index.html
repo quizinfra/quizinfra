@@ -18,6 +18,9 @@
         .button-group {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
         .button-group button {background:#007bff; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:14px;}
         .button-group button:hover {background:#0056b3;}
+        .button-group + .button-group {border-top:1px solid #eee; margin-top:14px; padding-top:14px;}
+        button.btn-danger {background:#dc3545; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:14px;}
+        button.btn-danger:hover {background:#b02a37;}
         .question {border:1px solid #ddd; padding:10px; border-radius:4px; margin-bottom:10px; background:#fafafa;}
         .question h4 {margin-top:0;}
         .question input[type="text"], .question textarea {width:100%; box-sizing:border-box; }
@@ -28,8 +31,12 @@
         .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);}
         .modal-content {background:#fff; padding:20px; margin:auto; width:80%; height:80%; overflow-y:auto; border-radius:8px;}
         .modal-content button {margin-top:10px;}
-        .lang-switcher {display:flex; justify-content:flex-end; margin-bottom:8px;}
+        .app-footer {display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:24px; padding-top:12px; border-top:1px solid #eee; font-size:13px;}
+        .app-footer-links {grid-column:2; display:flex; justify-content:center; gap:24px;}
+        .lang-switcher {grid-column:3; justify-self:end; display:flex; align-items:center;}
         .lang-switcher select {font-size:14px; padding:4px 6px; border:1px solid #ccc; border-radius:4px; background:#fff;}
+        .app-footer a {color:#999; text-decoration:none;}
+        .app-footer a:hover {color:#555; text-decoration:underline;}
     </style>
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Multiple Choice Printable Quiz Maker</title>
@@ -45,7 +52,6 @@
                 <article>
                     <div>
                         <header>
-                            <div class="lang-switcher" id="langSwitcher"></div>
                             <h1 data-i18n="app.title">Multiple Choice Printable Quiz Maker</h1>
                         </header>
                         <div class="form-container">
@@ -68,16 +74,20 @@
                             <div id="questionsContainer"></div>
                             <div class="button-group">
                                 <button data-i18n="actions.add_question" onclick="addQuestion()">Add New Question</button>
-                                <button data-i18n="actions.save_progress" onclick="saveProgress()">Save Progress</button>
-                                <button data-i18n="actions.load_progress" onclick="loadProgress()">Load Progress</button>
                                 <button data-i18n="actions.preview_quiz" onclick="previewQuiz()">Preview Quiz</button>
-                                <button data-i18n="actions.export_quiz_data" onclick="exportQuizData()">Export Quiz Data</button>
-                                <button id="importBtn" data-i18n="actions.import_quiz_data">Import Quiz Data</button>
-                                <button data-i18n="actions.generate_word_document" onclick="generateWordDocument()">Generate Word Document</button>
-                                <button data-i18n="actions.print_answer_sheet" onclick="printAnswerSheet()">Print Answer Sheet</button>
+                                <button class="btn-danger" data-i18n="actions.clear_quiz" onclick="clearQuiz()">Clear Quiz</button>
+                            </div>
+                            <div class="button-group">
                                 <button data-i18n="actions.shuffle_questions" onclick="shuffleQuestions()">Shuffle Questions</button>
                                 <button data-i18n="actions.shuffle_answers" onclick="shuffleAnswers()">Shuffle Answers</button>
-                                <button data-i18n="actions.clear_quiz" onclick="clearQuiz()">Clear Quiz</button>
+                                <button data-i18n="actions.generate_word_document" onclick="generateWordDocument()">Generate Word Document</button>
+                                <button data-i18n="actions.print_answer_sheet" onclick="printAnswerSheet()">Print Answer Sheet</button>
+                            </div>
+                            <div class="button-group">
+                                <button data-i18n="actions.save_progress" onclick="saveProgress()">Save Progress</button>
+                                <button data-i18n="actions.load_progress" onclick="loadProgress()">Load Progress</button>
+                                <button data-i18n="actions.export_quiz_data" onclick="exportQuizData()">Export Quiz Data</button>
+                                <button id="importBtn" data-i18n="actions.import_quiz_data">Import Quiz Data</button>
                             </div>
                         </div>
                         <!-- Modal for importing data -->
@@ -95,6 +105,13 @@
                 </article>
             </main>
         </div>
+        <footer class="app-footer">
+            <div class="app-footer-links">
+                <a href="https://github.com/quizinfra/quizinfra">GitHub</a>
+                <a href="https://github.com/quizinfra/quizinfra/issues/new" data-i18n="footer.feedback">Feedback</a>
+            </div>
+            <div class="lang-switcher" id="langSwitcher"></div>
+        </footer>
     </div>
 </div>
 </body>

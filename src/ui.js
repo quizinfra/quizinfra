@@ -115,7 +115,7 @@ export function renderQuestions() {
         <label>${t("question.explanation_label")}</label>
         <textarea oninput="updateExplanation(${index}, this.value)">${escapeHTML(q.explanation)}</textarea>
       </div>
-      <button onclick="removeQuestion(${index})">${t("question.remove")}</button>
+      <button class="btn-danger" onclick="removeQuestion(${index})">${t("question.remove")}</button>
     `;
     container.appendChild(questionDiv);
   });
