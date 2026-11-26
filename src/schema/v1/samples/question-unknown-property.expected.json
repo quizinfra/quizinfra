@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "title": "Premature Tags Quiz",
+  "teacherName": "Time Traveller Tim",
+  "instructions": "A question carries a stray 'tags' property that v1 never defined.",
+  "date": "2024-09-09",
+  "tags": {},
+  "questions": [
+    {
+      "text": "Which era does this file claim to be from?",
+      "answers": ["v1 with a stray property", "Pure v1", "v2", "v3"],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Stray properties on questions are ignored by the importer."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "title": "Numeric Difficulty Quiz",
+  "teacherName": "Stringent Sandra",
+  "instructions": "One tag value is a number; the bag is string -> string only.",
+  "date": "2026-01-07",
+  "tags": {
+    "difficulty": 3
+  },
+  "questions": []
+}

@@ -11,14 +11,31 @@ export function notify(msg) {
 // Functions are exported for testing and also attached to window
 // so the inline onclick attributes in index.html keep working.
 
+import { buildQuizPayload, serializeQuiz } from "./quizData.js";
 import {
-  buildQuizPayload,
-  serializeQuiz,
-  deserializeQuiz,
-} from "./quizData.js";
+  importQuiz,
+  getVersionOrThrow,
+  CURRENT_VERSION,
+  QuizImportError,
+  UnsupportedSchemaVersionError,
+} from "./schema/index.js";
 import { t, getLocale, initI18n, mountLanguageSwitcher, onLocaleChange } from "./i18n/index.js";
 
 let questions = [];
+
+// UI-only policy: the editor always shows this many answer option rows
+// for a newly added question. The data model places NO cardinality
+// constraint on answers/correctAnswers (any length imports fine);
+// per-question add/remove of options is a future UI workstream. Until
+// then this constant is the only place the four-option layout lives.
+const ANSWER_ROWS_PER_QUESTION = 4;
+
+// The v2 `tags` bag (string -> string metadata). DATA-ONLY for now: the
+// app carries tags through import -> state -> save/export untouched, but
+// renders and edits no tag UI yet (that is a separate workstream). The
+// spread-copy in setQuizData keeps a parsed "__proto__" key ordinary
+// data (spread defines own properties, never triggering the setter).
+let tags = {};
 
 
 
@@ -28,7 +45,8 @@ export function getQuizData() {
     document.getElementById("teacherName"),
     document.getElementById("instructions"),
     document.getElementById("quizDate"),
-    questions
+    questions,
+    tags
   );
 }
 
@@ -37,16 +55,20 @@ export function setQuizData(data) {
   document.getElementById("teacherName").value = data.teacherName || "";
   document.getElementById("instructions").value = data.instructions || "";
   document.getElementById("quizDate").value = data.date || "";
+  // The import pipeline guarantees `tags` on current-version data; the
+  // fallback only serves direct callers/tests with partial objects.
+  tags = data.tags ? { ...data.tags } : {};
   questions = data.questions || [];
 }
 
 export function addQuestion() {
-  const question = {
-    text: "",
-    answers: ["", "", "", ""],
-    correctAnswers: [false, false, false, false],
-    explanation: "",
-  };
+  // Field names and their non-option defaults come from the schema's
+  // current shape table (the same table the normalizer fills sparse
+  // questions from); the editor's fixed option rows are the UI policy
+  // layered on top.
+  const question = getVersionOrThrow(CURRENT_VERSION).blankQuestion();
+  question.answers = Array.from({ length: ANSWER_ROWS_PER_QUESTION }, () => "");
+  question.correctAnswers = Array.from({ length: ANSWER_ROWS_PER_QUESTION }, () => false);
   questions.push(question);
   renderQuestions();
 }
@@ -121,13 +143,47 @@ export function saveProgress() {
   notify(t("toast.saved"));
 }
 
+/**
+ * Translate an import failure into a user-facing toast message.
+ * Strict-import policy: the translated headline is followed by the
+ * validator's technical issue list (English, for the console-savvy and
+ * for bug reports); unknown errors are logged before the generic toast.
+ */
+function importErrorMessage(err) {
+  if (err instanceof UnsupportedSchemaVersionError) {
+    return t("toast.import_newer_version", { version: err.version });
+  }
+  if (err instanceof QuizImportError) {
+    // Covers QuizDataError (validation issue list in .message) and the
+    // parse/detect failures alike.
+    return `${t("toast.import_failed")} ${err.message}`;
+  }
+  console.error(err);
+  return t("toast.import_failed");
+}
+
+/**
+ * Shared landing path for persisted data (localStorage entry). Parses,
+ * version-detects, validates and migrates via the schema pipeline, then
+ * populates the UI. Returns true on success.
+ */
+function applyImportedQuiz(text, successMsg) {
+  try {
+    const { data } = importQuiz(text);
+    setQuizData(data);
+    renderQuestions();
+    notify(successMsg);
+    return true;
+  } catch (err) {
+    notify(importErrorMessage(err));
+    return false;
+  }
+}
+
 export function loadProgress() {
   const saved = localStorage.getItem("quizData");
   if (saved) {
-    const data = deserializeQuiz(saved);
-    setQuizData(data);
-    renderQuestions();
-    notify(t("toast.loaded"));
+    applyImportedQuiz(saved, t("toast.loaded"));
   } else {
     notify(t("toast.no_saved"));
   }
@@ -176,25 +232,32 @@ export function importQuizData() {
   document.getElementById("importFileInput").click();
 }
 
+/**
+ * Read a chosen File through the schema pipeline. Returns a promise that
+ * settles once the file has been handled (the inline onchange attribute
+ * ignores it; tests await it). Kept thin on purpose: all data judgement
+ * lives in src/schema/index.js.
+ */
 export function handleFileImport(event) {
   const file = event.target.files[0];
   if (!file) {
     notify(t("toast.no_file_selected"));
-    return;
+    return Promise.resolve(false);
   }
   const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const quiz = deserializeQuiz(e.target.result);
-      setQuizData(quiz);
-      renderQuestions();
-      notify(t("toast.imported"));
-    } catch {
+  const settled = new Promise(resolve => {
+    reader.onload = e => {
+      resolve(applyImportedQuiz(e.target.result, t("toast.imported")));
+      event.target.value = ""; // reset so re-choosing the same file re-fires change
+    };
+    reader.onerror = () => {
       notify(t("toast.import_failed"));
-    }
-    event.target.value = ""; // reset
-  };
+      event.target.value = "";
+      resolve(false);
+    };
+  });
   reader.readAsText(file);
+  return settled;
 }
 
 export function generateWordDocument() {
@@ -284,6 +347,7 @@ export function shuffleAnswers() {
 
 export function clearQuiz() {
   questions = [];
+  tags = {};
   document.getElementById("quizTitle").value = "";
   document.getElementById("teacherName").value = "";
   document.getElementById("instructions").value = "";

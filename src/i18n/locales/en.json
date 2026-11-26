@@ -56,6 +56,7 @@
     "cleared": "Quiz cleared!",
     "no_file_selected": "No file selected.",
     "imported": "File imported",
-    "import_failed": "Failed to import quiz data."
+    "import_failed": "Failed to import quiz data.",
+    "import_newer_version": "Failed to import: the file uses a newer data version ({{version}}) than this app supports. Update the app."
   }
 }

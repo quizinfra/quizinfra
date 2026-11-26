@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 2,
+  "title": "Tagless V Two Quiz",
+  "teacherName": "Old Habits Inc.",
+  "instructions": "A v2 file that omits the tags bag; the pipeline supplies the empty one.",
+  "date": "2026-01-05",
+  "questions": []
+}

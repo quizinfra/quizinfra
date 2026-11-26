@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "title": "Amphibians Unit Check-In",
+  "teacherName": "Lic. Beatriz Fernández",
+  "instructions": "Ten-minute check-in; tags identify the unit for the school records system.",
+  "date": "2026-06-30",
+  "tags": {
+    "unit": "Amphibians & Reptiles",
+    "difficulty": "easy",
+    "school-code": "ESC-0417",
+    "exam-hash": "a1b2c3d4",
+    "__proto__": "inert data, not prototype pollution"
+  },
+  "questions": [
+    {
+      "text": "An amphibian's moist skin helps it do what?",
+      "answers": [
+        "Breathe extra oxygen",
+        "Fly short distances",
+        "Hibernate underwater forever",
+        "Regrow its tail daily"
+      ],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Cutaneous respiration supplements the lungs."
+    }
+  ]
+}

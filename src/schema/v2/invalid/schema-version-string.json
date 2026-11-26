@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "2",
+  "title": "Stringified Version Quiz",
+  "teacherName": "Quoteworthy Ltd.",
+  "instructions": "schemaVersion is the string \"2\", not the integer 2.",
+  "date": "2026-01-09",
+  "tags": {},
+  "questions": []
+}

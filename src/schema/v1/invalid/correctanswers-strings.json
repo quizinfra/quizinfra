@@ -1,0 +1,14 @@
+{
+  "title": "Stringy Flags Quiz",
+  "teacherName": "Typo Andy",
+  "instructions": "Correct-answer flags were hand-edited into strings.",
+  "date": "2024-07-04",
+  "questions": [
+    {
+      "text": "Which frog croaks the loudest?",
+      "answers": ["Coqui Frog", "Tree Frog", "Pacman Frog", "Tomato Frog"],
+      "correctAnswers": ["true", "false", "false", "false"],
+      "explanation": "Flags must be booleans, not strings."
+    }
+  ]
+}

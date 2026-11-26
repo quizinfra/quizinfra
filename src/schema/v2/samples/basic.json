@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "title": "Volcanoes of the Andes",
+  "teacherName": "Prof. Ignacio Serrano",
+  "instructions": "Pick the best answer; the field trip is next Tuesday.",
+  "date": "2026-05-02",
+  "tags": {},
+  "questions": [
+    {
+      "text": "Which volcano is the highest actively erupting in the world?",
+      "answers": [
+        "Llullaillaco",
+        "Cotopaxi",
+        "Villarrica",
+        "Mount Etna"
+      ],
+      "correctAnswers": [false, true, false, false],
+      "explanation": "Cotopaxi is one of the highest active volcanoes on Earth."
+    }
+  ]
+}

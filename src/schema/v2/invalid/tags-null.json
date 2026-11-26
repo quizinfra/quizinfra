@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 2,
+  "title": "Nullish Tags Quiz",
+  "teacherName": "JS Gotchas LLC",
+  "instructions": "typeof null is 'object', but the schema says object and means it.",
+  "date": "2026-01-06",
+  "tags": null,
+  "questions": []
+}

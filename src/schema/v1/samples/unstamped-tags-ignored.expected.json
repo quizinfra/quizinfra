@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 2,
+  "title": "Amnesiac Version Quiz",
+  "teacherName": "Who Knew Co.",
+  "instructions": "Looks like v2 (it carries tags) but forgot the stamp, so it detects as legacy v1 — which has no tags field yet, and unknown fields are ignored.",
+  "date": "2026-01-10",
+  "tags": {},
+  "questions": []
+}

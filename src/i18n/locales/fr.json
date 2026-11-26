@@ -56,6 +56,7 @@
     "cleared": "Quiz effacé!",
     "no_file_selected": "Aucun fichier sélectionné.",
     "imported": "Fichier importé",
-    "import_failed": "Échec de l'importation des données du quiz."
+    "import_failed": "Échec de l'importation des données du quiz.",
+    "import_newer_version": "Échec de l'importation : le fichier utilise une version des données plus récente ({{version}}) que celle prise en charge par cette application. Mettez à jour l'application."
   }
 }

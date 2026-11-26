@@ -93,21 +93,268 @@
     </div>
 </div>
 <script>(function() {
+	// src/schema/errors.js
+	var QuizImportError = class extends Error {
+		constructor(message) {
+			super(message);
+			this.name = "QuizImportError";
+		}
+	};
+	var QuizDataError = class extends QuizImportError {
+		constructor(message, issues) {
+			super(message);
+			this.name = "QuizDataError";
+			this.issues = Array.isArray(issues) ? issues : [message];
+		}
+	};
+	var UnsupportedSchemaVersionError = class extends QuizImportError {
+		constructor(version, supportedVersion) {
+			super(`file declares schemaVersion ${version}, but this build supports at most ${supportedVersion}`);
+			this.name = "UnsupportedSchemaVersionError";
+			this.version = version;
+			this.supportedVersion = supportedVersion;
+		}
+	};
+	// src/schema/validate.js
+	function isPlainObject(value) {
+		return value !== null && typeof value === "object" && !Array.isArray(value);
+	}
+	function describeValue(value) {
+		if (value === null) return "null";
+		if (Array.isArray(value)) return "an array";
+		switch (typeof value) {
+			case "string": return `the string ${JSON.stringify(value)}`;
+			case "number": return `the number ${value}`;
+			case "boolean": return `the boolean ${value}`;
+			default: return `a ${typeof value}`;
+		}
+	}
+	function hasOwn(object, key) {
+		return Object.prototype.hasOwnProperty.call(object, key);
+	}
+	var Issues = class {
+		constructor(root = "quiz") {
+			this.root = root;
+			this.list = [];
+		}
+		add(path, expected, actual) {
+			this.list.push(`${path} must be ${expected}, got ${describeValue(actual)}`);
+		}
+		throwIfAny() {
+			if (this.list.length > 0) throw new QuizDataError(this.list.join("; "), this.list);
+		}
+		field(object, key, predicate, expected, path) {
+			if (!hasOwn(object, key)) return false;
+			if (!predicate(object[key])) {
+				this.add(path, expected, object[key]);
+				return false;
+			}
+			return true;
+		}
+		arrayOf(object, key, itemType, path) {
+			if (!this.field(object, key, Array.isArray, `an array of ${itemType}s`, path)) return;
+			object[key].forEach((item, index) => {
+				if (typeof item !== itemType) this.add(`${path}[${index}]`, `a ${itemType}`, item);
+			});
+		}
+	};
+	// src/schema/engine.js
+	var SchemaVersion = class {
+		constructor(version, shape) {
+			this.version = version;
+			this.shape = shape;
+		}
+		validate(raw) {
+			const issues = new Issues();
+			if (!isPlainObject(raw)) issues.add(issues.root, "a quiz object", raw);
+			else {
+				for (const [key, kind] of Object.entries(this.shape.quiz)) kindOf(kind).check(issues, raw, key, `${issues.root}.${key}`, this.shape.question);
+				if (hasOwn(raw, "schemaVersion") && raw.schemaVersion !== this.version) issues.add(`${issues.root}.schemaVersion`, String(this.version), raw.schemaVersion);
+			}
+			issues.throwIfAny();
+			return raw;
+		}
+		normalize(raw) {
+			const filled = fillFields(raw, this.shape.quiz, {}, this.shape.question);
+			if (hasOwn(raw, "schemaVersion")) filled.schemaVersion = raw.schemaVersion;
+			return filled;
+		}
+		blankQuestion() {
+			return fillFields({}, this.shape.question, {}, void 0);
+		}
+	};
+	var KINDS = {
+		string: {
+			check: (issues, object, key, path) => issues.field(object, key, (value) => typeof value === "string", "a string", path),
+			defaultValue: () => ""
+		},
+		stringArray: {
+			check: (issues, object, key, path) => issues.arrayOf(object, key, "string", path),
+			defaultValue: () => []
+		},
+		booleanArray: {
+			check: (issues, object, key, path) => issues.arrayOf(object, key, "boolean", path),
+			defaultValue: () => []
+		},
+		stringBag: {
+			check: (issues, object, key, path) => {
+				if (!issues.field(object, key, isPlainObject, "an object (string -> string)", path)) return;
+				const bag = object[key];
+				Object.keys(bag).forEach((name) => {
+					if (typeof bag[name] !== "string") issues.add(`${path}[${JSON.stringify(name)}]`, "a string", bag[name]);
+				});
+			},
+			defaultValue: () => ({})
+		},
+		questions: {
+			check: (issues, object, key, path, questionShape) => collectQuestionsItems(issues, object, key, path, questionShape),
+			defaultValue: () => []
+		}
+	};
+	function kindOf(kind) {
+		const definition = KINDS[kind];
+		if (definition === void 0) throw new Error(`unknown field kind "${kind}" in a shape table`);
+		return definition;
+	}
+	function collectQuestionsItems(issues, quiz, key, path, questionShape) {
+		if (!issues.field(quiz, key, Array.isArray, "an array of questions", path)) return;
+		quiz[key].forEach((question, index) => {
+			const qPath = `${path}[${index}]`;
+			if (!isPlainObject(question)) {
+				issues.add(qPath, "a question object", question);
+				return;
+			}
+			for (const [name, kind] of Object.entries(questionShape)) kindOf(kind).check(issues, question, name, `${qPath}.${name}`, void 0);
+		});
+	}
+	function copyValue(value) {
+		if (Array.isArray(value)) return [...value];
+		if (isPlainObject(value)) return { ...value };
+		return value;
+	}
+	function fillFields(source, shape, target, itemShape) {
+		for (const [key, kind] of Object.entries(shape)) {
+			if (!hasOwn(source, key)) {
+				target[key] = kindOf(kind).defaultValue();
+				continue;
+			}
+			const value = source[key];
+			if (kind === "questions") target[key] = Array.isArray(value) ? value.map((item) => isPlainObject(item) ? fillFields(item, itemShape, {}, void 0) : item) : copyValue(value);
+			else target[key] = copyValue(value);
+		}
+		return target;
+	}
+	// src/schema/v1/quiz.js
+	var VERSION_1 = new SchemaVersion(1, {
+		quiz: {
+			title: "string",
+			teacherName: "string",
+			instructions: "string",
+			date: "string",
+			questions: "questions"
+		},
+		question: {
+			text: "string",
+			answers: "stringArray",
+			correctAnswers: "booleanArray",
+			explanation: "string"
+		}
+	});
+	// src/schema/v2/quiz.js
+	var VERSION_2 = new SchemaVersion(2, {
+		quiz: {
+			...VERSION_1.shape.quiz,
+			tags: "stringBag"
+		},
+		question: VERSION_1.shape.question
+	});
+	function migrateV1ToV2(quiz) {
+		return {
+			schemaVersion: 2,
+			title: quiz.title,
+			teacherName: quiz.teacherName,
+			instructions: quiz.instructions,
+			date: quiz.date,
+			tags: {},
+			questions: quiz.questions.map((question) => ({
+				text: question.text,
+				answers: [...question.answers],
+				correctAnswers: [...question.correctAnswers],
+				explanation: question.explanation
+			}))
+		};
+	}
+	// src/schema/migrations.js
+	var migrations = [{
+		from: 1,
+		to: 2,
+		migrate: migrateV1ToV2
+	}];
+	// src/schema/current.js
+	var CURRENT_VERSION = migrations.length === 0 ? 1 : migrations[migrations.length - 1].to;
+	// src/schema/index.js
+	function getVersionOrThrow(version) {
+		switch (version) {
+			case 1: return VERSION_1;
+			case 2: return VERSION_2;
+			default: throw new QuizDataError(`unknown schemaVersion ${version}`);
+		}
+	}
+	function detectVersion(raw) {
+		if (!isPlainObject(raw)) throw new QuizDataError(`quiz data must be a JSON object, got ${describeValue(raw)}`);
+		if (!hasOwn(raw, "schemaVersion")) return 1;
+		const version = raw.schemaVersion;
+		if (!Number.isInteger(version) || version < 1) throw new QuizDataError(`schemaVersion must be a positive integer, got ${describeValue(version)}`);
+		if (version > CURRENT_VERSION) throw new UnsupportedSchemaVersionError(version, CURRENT_VERSION);
+		return version;
+	}
+	function migrateToLatest(raw, fromVersion) {
+		let data = getVersionOrThrow(fromVersion).normalize(raw);
+		let version = fromVersion;
+		while (version < CURRENT_VERSION) {
+			const hop = migrations.find((step) => step.from === version);
+			if (hop === void 0 || hop.to !== version + 1) throw new QuizDataError(`migration chain is broken: no ${version} -> ${version + 1} step`);
+			data = hop.migrate(data);
+			version = hop.to;
+			const target = getVersionOrThrow(version);
+			data = target.normalize(data);
+			target.validate(data);
+		}
+		return data;
+	}
+	function importQuiz(text) {
+		let raw;
+		try {
+			raw = JSON.parse(text);
+		} catch (cause) {
+			throw new QuizImportError(`file is not valid JSON (${cause instanceof Error ? cause.message : String(cause)})`);
+		}
+		const from = getVersionOrThrow(detectVersion(raw));
+		from.validate(raw);
+		return {
+			data: migrateToLatest(raw, from.version),
+			fromVersion: from.version,
+			migrated: from.version !== CURRENT_VERSION
+		};
+	}
 	// src/quizData.js
-	function buildQuizPayload(titleEl, teacherEl, instrEl, dateEl, questions) {
+	function buildQuizPayload(titleEl, teacherEl, instrEl, dateEl, questions, tags) {
 		return {
 			title: titleEl.value,
 			teacherName: teacherEl.value,
 			instructions: instrEl.value,
 			date: dateEl.value,
+			tags: tags || {},
 			questions
 		};
 	}
 	function serializeQuiz(data) {
-		return JSON.stringify(data);
-	}
-	function deserializeQuiz(json) {
-		return JSON.parse(json);
+		const filled = getVersionOrThrow(1).normalize(data);
+		delete filled.schemaVersion;
+		return JSON.stringify({
+			schemaVersion: 1,
+			...filled
+		});
 	}
 	// src/i18n/detect.js
 	function normalizeTag(tag) {
@@ -162,7 +409,8 @@
 			"Quiz cleared!",
 			"No file selected.",
 			"File imported",
-			"Failed to import quiz data."
+			"Failed to import quiz data.",
+			"Failed to import: the file uses a newer data version ({{version}}) than this app supports. Update the app."
 		],
 		"es": [
 			"Creador de exámenes imprimibles de opción múltiple",
@@ -203,7 +451,8 @@
 			"¡Examen vaciado!",
 			"Ningún archivo seleccionado.",
 			"Archivo importado",
-			"No se pudieron importar los datos del examen."
+			"No se pudieron importar los datos del examen.",
+			"No se pudo importar: el archivo usa una versión de datos más nueva ({{version}}) que la que admite esta aplicación. Actualiza la aplicación."
 		],
 		"fr": [
 			"Créateur de quiz imprimibles à choix multiples",
@@ -244,7 +493,8 @@
 			"Quiz effacé!",
 			"Aucun fichier sélectionné.",
 			"Fichier importé",
-			"Échec de l'importation des données du quiz."
+			"Échec de l'importation des données du quiz.",
+			"Échec de l'importation : le fichier utilise une version des données plus récente ({{version}}) que celle prise en charge par cette application. Mettez à jour l'application."
 		]
 	};
 	var SUPPORTED_LOCALES = Object.keys(locales);
@@ -341,33 +591,24 @@
 		alert(msg);
 	}
 	var questions = [];
+	var ANSWER_ROWS_PER_QUESTION = 4;
+	var tags = {};
 	function getQuizData() {
-		return buildQuizPayload(document.getElementById("quizTitle"), document.getElementById("teacherName"), document.getElementById("instructions"), document.getElementById("quizDate"), questions);
+		return buildQuizPayload(document.getElementById("quizTitle"), document.getElementById("teacherName"), document.getElementById("instructions"), document.getElementById("quizDate"), questions, tags);
 	}
 	function setQuizData(data) {
 		document.getElementById("quizTitle").value = data.title || "";
 		document.getElementById("teacherName").value = data.teacherName || "";
 		document.getElementById("instructions").value = data.instructions || "";
 		document.getElementById("quizDate").value = data.date || "";
+		tags = data.tags ? { ...data.tags } : {};
 		questions = data.questions || [];
 	}
 	function addQuestion() {
-		questions.push({
-			text: "",
-			answers: [
-				"",
-				"",
-				"",
-				""
-			],
-			correctAnswers: [
-				false,
-				false,
-				false,
-				false
-			],
-			explanation: ""
-		});
+		const question = getVersionOrThrow(CURRENT_VERSION).blankQuestion();
+		question.answers = Array.from({ length: ANSWER_ROWS_PER_QUESTION }, () => "");
+		question.correctAnswers = Array.from({ length: ANSWER_ROWS_PER_QUESTION }, () => false);
+		questions.push(question);
 		renderQuestions();
 	}
 	function removeQuestion(index) {
@@ -421,13 +662,28 @@
 		localStorage.setItem("quizData", serializeQuiz(quizData));
 		notify(t(32));
 	}
+	function importErrorMessage(err) {
+		if (err instanceof UnsupportedSchemaVersionError) return t(39, { version: err.version });
+		if (err instanceof QuizImportError) return `${t(38)} ${err.message}`;
+		console.error(err);
+		return t(38);
+	}
+	function applyImportedQuiz(text, successMsg) {
+		try {
+			const { data } = importQuiz(text);
+			setQuizData(data);
+			renderQuestions();
+			notify(successMsg);
+			return true;
+		} catch (err) {
+			notify(importErrorMessage(err));
+			return false;
+		}
+	}
 	function loadProgress() {
 		const saved = localStorage.getItem("quizData");
-		if (saved) {
-			setQuizData(deserializeQuiz(saved));
-			renderQuestions();
-			notify(t(33));
-		} else notify(t(34));
+		if (saved) applyImportedQuiz(saved, t(33));
+		else notify(t(34));
 	}
 	function previewQuiz() {
 		const previewContent = document.getElementById("previewContent");
@@ -464,20 +720,22 @@
 		const file = event.target.files[0];
 		if (!file) {
 			notify(t(36));
-			return;
+			return Promise.resolve(false);
 		}
 		const reader = new FileReader();
-		reader.onload = (e) => {
-			try {
-				setQuizData(deserializeQuiz(e.target.result));
-				renderQuestions();
-				notify(t(37));
-			} catch {
+		const settled = new Promise((resolve) => {
+			reader.onload = (e) => {
+				resolve(applyImportedQuiz(e.target.result, t(37)));
+				event.target.value = "";
+			};
+			reader.onerror = () => {
 				notify(t(38));
-			}
-			event.target.value = "";
-		};
+				event.target.value = "";
+				resolve(false);
+			};
+		});
 		reader.readAsText(file);
+		return settled;
 	}
 	function generateWordDocument() {
 		let docContent = `
@@ -563,6 +821,7 @@
 	}
 	function clearQuiz() {
 		questions = [];
+		tags = {};
 		document.getElementById("quizTitle").value = "";
 		document.getElementById("teacherName").value = "";
 		document.getElementById("instructions").value = "";

@@ -1,0 +1,25 @@
+{
+  "title": "Bob's & Alice's Zoo Quiz <3",
+  "teacherName": "Mr. O'Keefe \"The Keeper\"",
+  "instructions": "Don't cheat! Questions may contain \"quotes\", <angle brackets> & émojis 🐸",
+  "date": "2025/09/01",
+  "questions": [
+    {
+      "text": "Which one is the 'Poison Dart Frog' of the Amazon basin?",
+      "answers": [
+        "<b>Phyllobates terribilis</b>",
+        "Bob's pet frog 'Ribbit'",
+        "The café frog ☕",
+        "Ampersand & Co. Frog 🐸"
+      ],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Phyllobates terribilis — beware the quotes: \"toxic\", 'really'!"
+    },
+    {
+      "text": "¿Dónde viven las ranjas del lago? — Where do the lake frogs live?",
+      "answers": ["En el lago", "En el desierto", "Under the sofa", "In the ñu mountains"],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Ñu-adjacent lakes only; apostrophes' everywhere, even here: \"done\"."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/zed/quizinfra/schema/v2.json",
+  "title": "quizinfra quiz data — version 2",
+  "description": "v1 plus the `tags` bag (string -> string map of arbitrary user metadata) and the `schemaVersion` stamp pinned to 2. TYPE-STRICT, PRESENCE-LENIENT policy (same as v1): every field may be absent — the import pipeline's normalize stage fills `tags` with the empty bag and every other gap with its documented default — but any field that IS present must match its declared type exactly. Arrays carry no cardinality constraint (the four-option editor layout is a UI policy, not a data-model one) and unknown properties are ignored (dropped at normalization). Self-contained by design: it does NOT $ref v1, so freezing v1 cannot be undone by editing v1 later.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "title": { "type": "string" },
+    "teacherName": { "type": "string" },
+    "instructions": { "type": "string" },
+    "date": { "type": "string" },
+    "tags": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/question" }
+    }
+  },
+  "$defs": {
+    "question": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "answers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "correctAnswers": {
+          "type": "array",
+          "items": { "type": "boolean" }
+        },
+        "explanation": { "type": "string" }
+      }
+    }
+  }
+}

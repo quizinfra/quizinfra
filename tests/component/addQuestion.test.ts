@@ -22,5 +22,8 @@ describe('Add Question button', () => {
     expect(questionDiv).not.toBeNull();
     const textInput = questionDiv!.querySelector('input[type="text"]') as HTMLInputElement;
     expect(textInput.value).toBe('');
+    // The four-option rows are a UI policy (the data model leaves
+    // option cardinality free); guard that the editor still lays out 4.
+    expect(questionDiv!.querySelectorAll('.answer-row').length).toBe(4);
   });
 });

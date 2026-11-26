@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/zed/quizinfra/schema/v1.json",
+  "title": "quizinfra quiz data — version 1 (legacy)",
+  "description": "The original, unversioned export format. Files from this era carry NO schemaVersion field; the stamp is therefore optional (and pinned to 1 so a v1 file stamped by hand still validates). TYPE-STRICT, PRESENCE-LENIENT policy: every field may be absent — the import pipeline's normalize stage fills documented defaults — but any field that IS present must match its declared type exactly. Arrays carry no cardinality constraint (the four-option editor layout is a UI policy, not a data-model one) and unknown properties are ignored (dropped at normalization). Pre-release policy amendments (2026-11): presence, cardinality and unknown-property rules were relaxed before anything shipped, which rule 1's pre-release exception allows; the file is frozen from here on. FROZEN: never edit; introduce a new version directory instead.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "title": { "type": "string" },
+    "teacherName": { "type": "string" },
+    "instructions": { "type": "string" },
+    "date": { "type": "string" },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/question" }
+    }
+  },
+  "$defs": {
+    "question": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "answers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "correctAnswers": {
+          "type": "array",
+          "items": { "type": "boolean" }
+        },
+        "explanation": { "type": "string" }
+      }
+    }
+  }
+}

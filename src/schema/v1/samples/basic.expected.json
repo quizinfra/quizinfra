@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "title": "Frogs of the Pampas",
+  "teacherName": "Dra. Yolanda Mendoza",
+  "instructions": "Circle the single correct answer for each question.",
+  "date": "2026-03-14",
+  "tags": {},
+  "questions": [
+    {
+      "text": "Which frog is endemic to the Wetlands of San Fernando?",
+      "answers": [
+        "The Pampas Snouted Frog",
+        "The European Common Frog",
+        "The American Bullfrog",
+        "The Green Tree Frog"
+      ],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Pleurodema thaul is the only one native to the Wetlands of San Fernando."
+    },
+    {
+      "text": "What do tadpoles breathe with before they grow lungs?",
+      "answers": [
+        "Their skin and gills",
+        "Their lungs only",
+        "Their stomach",
+        "Their feathered membranes"
+      ],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Tadpoles use external gills and permeable skin until metamorphosis."
+    }
+  ]
+}

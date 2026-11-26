@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "title": "Short Answered Quiz",
+  "teacherName": "Coach Whittaker",
+  "instructions": "This question has only three answer options; option counts are free at the data-model level.",
+  "date": "2024-05-19",
+  "tags": {},
+  "questions": [
+    {
+      "text": "How many legs does an insect have?",
+      "answers": ["Six", "Eight", "Ten"],
+      "correctAnswers": [true, false, false],
+      "explanation": "Insects have six legs."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "title": "Extra Notes Quiz",
+  "teacherName": "Margin Note Inc.",
+  "instructions": "A stray top-level property v2 does not define, sitting next to a valid tags bag.",
+  "date": "2026-01-11",
+  "tags": {},
+  "notes": "unknown properties are ignored, not an error",
+  "questions": []
+}

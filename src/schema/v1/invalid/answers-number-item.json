@@ -1,0 +1,14 @@
+{
+  "title": "Number In The Answers Quiz",
+  "teacherName": "Secretariat Bot",
+  "instructions": "One answer option is a number, not a string.",
+  "date": "2024-06-01",
+  "questions": [
+    {
+      "text": "What is seven minus four?",
+      "answers": ["Three", 3, "Quatre", "Drei"],
+      "correctAnswers": [true, false, false, false],
+      "explanation": "Answers must all be strings."
+    }
+  ]
+}

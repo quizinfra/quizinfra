@@ -1,0 +1,5 @@
+[
+  "This is not a quiz object at all.",
+  "It is a top-level JSON array,",
+  "which strict import must refuse."
+]

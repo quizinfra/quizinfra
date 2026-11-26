@@ -1,0 +1,8 @@
+{
+  "title": "Stray Property Quiz",
+  "teacherName": "Hand Editor Helen",
+  "instructions": "This quiz object carries a property v1 never had; the importer ignores what it does not know.",
+  "date": "2024-08-10",
+  "notes": "Added by hand; unknown fields are dropped at normalization, not an error.",
+  "questions": []
+}

@@ -1,0 +1,13 @@
+{
+  "title": "No Explanation Quiz",
+  "teacherName": "Minimalist Mary",
+  "instructions": "The question omits the explanation field; the pipeline fills the blank.",
+  "date": "2024-12-25",
+  "questions": [
+    {
+      "text": "Which field is missing below?",
+      "answers": ["Explanation placeholder", "Answers", "Text", "Correct answers"],
+      "correctAnswers": [true, false, false, false]
+    }
+  ]
+}

@@ -56,6 +56,7 @@
     "cleared": "¡Examen vaciado!",
     "no_file_selected": "Ningún archivo seleccionado.",
     "imported": "Archivo importado",
-    "import_failed": "No se pudieron importar los datos del examen."
+    "import_failed": "No se pudieron importar los datos del examen.",
+    "import_newer_version": "No se pudo importar: el archivo usa una versión de datos más nueva ({{version}}) que la que admite esta aplicación. Actualiza la aplicación."
   }
 }
